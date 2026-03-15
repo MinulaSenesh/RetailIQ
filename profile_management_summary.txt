@@ -1,0 +1,31 @@
+Universal Profile Management - Feature Implementation Summary
+
+This document summarizes the changes made to enable universal profile management across all user roles (ADMIN, MANAGER, CUSTOMER) in the RetailIQ system.
+
+Backend Changes (retailiq-api):
+1.  Extended User Entity: Added 'firstName', 'lastName', and 'avatarUrl' fields directly to the 'User' class to support profile data for all roles.
+2.  Database Migration: Created 'V6__add_profile_fields_to_users.sql' to update the 'users' table and synchronize existing customer data.
+3.  AuthService Update: Updated registration and login flows to populate and return the new profile fields in the 'LoginResponse' DTO.
+4.  ProfileService: Implemented business logic for fetching and updating user profiles.
+5.  ProfileController: Added endpoints:
+    - GET /api/v1/profile: Retrieve current user profile.
+    - PUT /api/v1/profile: Update name details.
+    - POST /api/v1/profile/photo: Upload and update profile picture.
+
+Frontend Changes (retailiq-frontend):
+1.  User Interface Update: Extended 'User' interface in 'AuthContext.tsx' to include the new fields.
+2.  ProfilePage: Created a premium, responsive profile management page using shadcn/ui components. Features include:
+    - Interactive Avatar upload with 'Camera' icon.
+    - Personal details update form.
+    - Role-based branding.
+3.  Routing: Registered '/profile' and '/shop/profile' routes in 'App.tsx' for admin and storefront layouts respectively.
+4.  Layout Integration:
+    - Updated 'Sidebar.tsx' to link the user avatar/identity block to the Profile page.
+    - Updated 'StorefrontLayout.tsx' to link the user menu to the Profile page.
+
+Notes:
+- All roles can now manage their own profiles.
+- Security is maintained as users can only access and update their own records via the authenticated principal.
+- Profile photos are stored in 'uploads/profiles/' and served via a file endpoint.
+
+Verified and ready for deployment.

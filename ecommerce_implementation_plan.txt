@@ -1,0 +1,57 @@
+RetailIQ E-Commerce Transformation - Implementation Plan
+=========================================================
+
+Objective: Transform the existing RetailIQ platform from a purely internal dashboard into a functioning e-commerce system where new customers can register, browse, and purchase items, while administrators manage inventory and analytics in the backend panel.
+
+---------------------------------------------------------
+Phase 1: Role Refactoring & Database Updates
+---------------------------------------------------------
+1. Remove the VIEWER Role:
+   - Backend: Remove viewer seeds from `DataInitializer.java`; remove any viewer role checks.
+   - Frontend: Remove viewer role handling from `AuthContext` and conditional logic.
+2. Add CUSTOMER Role:
+   - Backend: Add "CUSTOMER" to the recognized roles.
+   - Database: Link the `User` authentication table to the `Customer` profile table (e.g., add a `user_id` foreign key to the `customers` table) so a login credential maps directly to a customer profile.
+
+---------------------------------------------------------
+Phase 2: Customer Registration & Authentication
+---------------------------------------------------------
+1. Backend Registration API:
+   - Create a `POST /api/v1/auth/register` endpoint.
+   - Flow: Accept email, password, first name, last name -> Hash password -> Create `User` with ROLE_CUSTOMER -> Create `Customer` profile linked to the user.
+2. Frontend Customer Login/Register Pages:
+   - Build a public-facing Registration form.
+   - Update the existing Login page to route users appropriately based on their role (Admins/Managers go to Dashboard; Customers go to the Storefront).
+
+---------------------------------------------------------
+Phase 3: E-Commerce Storefront (Frontend)
+---------------------------------------------------------
+1. Storefront Layout:
+   - Create a new public routing layout (e.g., `/shop`) distinct from the sidebar dashboard layout.
+   - Implement a navigation bar with a Shopping Cart icon and User Profile dropdown.
+2. Product Catalog:
+   - Create a grid-based `StorefrontPage` to display active products nicely to customers.
+   - Add "Add to Cart" buttons. (Ensure backend `GET /products` allows CUSTOMER role access).
+3. Shopping Cart System:
+   - Implement a React Context or local storage solution to hold cart items (product, quantity, price) locally before purchase.
+4. Checkout Checkout:
+   - Build a checkout UI for the customer to finalize their purchase.
+
+---------------------------------------------------------
+Phase 4: Order Processing & Stock Management
+---------------------------------------------------------
+1. Backend Checkout API:
+   - Create a `POST /api/v1/orders/checkout` endpoint.
+   - Flow: Receive cart items -> Validate stock availability -> Calculate total -> Create `Order` record -> Create `OrderItem` records -> Deduct purchased quantities from `Product.stockQuantity` -> Save to DB.
+2. Admin Order Management:
+   - Ensure the Admin panel has an "Orders" page to view incoming customer purchases.
+   - (Stock updates are already available to Admins via the Product Edit modal, but this will now automatically reflect customer purchases).
+
+---------------------------------------------------------
+Execution Strategy
+---------------------------------------------------------
+To ensure zero system errors, we will execute these phases sequentially:
+1. First, modify the database schemas and backend security configurations. This is the foundation.
+2. Second, build and test the new backend endpoints via terminal/HTTP requests.
+3. Third, build the frontend UI components.
+4. Finally, wire the frontend to the new backend endpoints and perform end-to-end testing of the purchase flow.

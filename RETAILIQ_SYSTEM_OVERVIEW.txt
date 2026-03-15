@@ -1,0 +1,79 @@
+================================================================================
+          RETAILIQ — CURRENT SYSTEM STATE & ARCHITECTURE OVERVIEW
+================================================================================
+Project: RetailIQ (Enterprise) / Zyvora (Customer Brand)
+Version: 1.0 (Post-UI Overhaul)
+Date: March 13, 2026
+--------------------------------------------------------------------------------
+
+1. SYSTEM ARCHITECTURE
+───────────────────────
+RetailIQ is a full-stack, distributed e-commerce analytics platform consisting of 
+four primary components:
+
+  • Frontend (Zyvora Shop): React.js + TypeScript + Vite + Tailwind CSS
+  • Backend API (Core): Java 17 + Spring Boot 3 + Spring Security + JWT
+  • Analytics Engine: Python 3.11 + FastAPI + Scikit-learn + Pandas
+  • Database: MySQL 8.0 (InnoDB)
+
+2. COMPONENT STATUS (CURRENTLY RUNNING)
+────────────────────────────────────────
+  • Web Frontend       : http://localhost:3000 (Vite Dev Server)
+  • Backend REST API   : http://localhost:8080/api/v1 (Spring Boot)
+  • Analytics Service  : http://localhost:8000 (FastAPI)
+  • Database Port      : 3306 (MySQL)
+
+3. DATABASE SCHEMA (MODERN STAR SCHEMA)
+─────────────────────────────────────────
+The system uses a MySQL 8 database with the following core tables:
+
+  • USERS        : Authentication and profile data (Admin, Analyst, Manager, Customer).
+  • CUSTOMERS    : Personal details, RFM scores, and segment labels.
+  • PRODUCTS     : Inventory, SKU, pricing (Cost vs Unit), and active status.
+  • CATEGORIES   : Hierarchical product categorization.
+  • ORDERS       : Transaction headers (Date, Total, Status, Region).
+  • ORDER_ITEMS  : Line-level details with auto-calculating line totals.
+  • INVENTORY_LOG: Audit trail for stock changes (Sales vs Restocks).
+  • AUDIT_LOG     : System-wide action tracking for security.
+
+4. ZYVORA BRAND OVERHAUL (RECENT UPDATES)
+─────────────────────────────────────────
+The customer-facing shop (Zyvora) has been recently redesigned for a premium 
+aesthetic:
+
+  • Theme: Strict Black (#0A0A0A) and Red (#DC2626) palette.
+  • Redesigned Login: Two-panel split layout with floating geometric animations.
+  • Image System: Automated high-quality product images via Unsplash Source API.
+  • Search Engine: Real-time filtering by Product Name, SKU, and Category.
+  • UX Enhancements: 
+    - Hover-reveal "Add to Cart" buttons.
+    - Premium shadow/lift effects on product cards.
+    - Redesigned Profile page with clean input styling.
+    - Dynamic Cart Count badge in the navbar.
+
+5. ACCESS CREDENTIALS (DEFAULT SEED)
+─────────────────────────────────────
+  • Admin Login   : admin@retailiq.com / password
+  • Analyst Login : analyst@retailiq.com / password
+
+6. ANALYTICS & MACHINE LEARNING
+────────────────────────────────
+The system performs advanced background processing:
+
+  • Sales Forecasting: 30-day and 90-day revenue predictions using 
+    RandomForestRegressor models trained on historical order data.
+  • Customer Segmentation: RFM (Recency, Frequency, Monetary) analysis that 
+    categorizes users as 'Champions', 'At Risk', 'Loyal', etc.
+  • ETL Pipeline: Automated cleaning and validation of uploaded CSV/Excel sales data.
+
+7. FILE STRUCTURE (KEY LOCATIONS)
+──────────────────────────────────
+  • /retailiq-frontend : React UI and Shop implementation.
+  • /retailiq-api      : Spring Boot controllers, services, and security.
+  • /retailiq-analytics: Python models and ETL routes.
+  • /src/pages         : Individual shop pages (Storefront, Checkout, Profile).
+  • /src/components/ui : Reusable design system (shadcn/ui).
+
+================================================================================
+                "Everything You Need, Delivered Smart."
+================================================================================

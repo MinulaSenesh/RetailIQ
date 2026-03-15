@@ -1,0 +1,55 @@
+# RetailIQ SaaS Feature Enhancements
+
+## Goal Description
+The objective is to enhance the RetailIQ platform by adding core SaaS capabilities that provide immediate business value without adding the maintenance overhead of extra Machine Learning models. The two primary features will be **Date Filtering** for dashboards and **Report Generation** (Exporting data). 
+
+Background context: The user requested to avoid adding more ML features as they might overcomplicate the system and instead focus on strengthening the core SaaS functionality. The backend API already supports date ranges (`start_date` and `end_date` parameters) for its analytics endpoints, so the focus will primarily be on the frontend React application and backend reporting endpoints.
+
+## Proposed Changes
+
+### 1. Date Filtering (Interactive Dashboards)
+The frontend dashboard currently hardcodes or defaults to the last 30/90 days. We will implement a global date picker that updates all charts and KPIs simultaneously.
+
+#### [NEW] `src/components/shared/DateRangePicker.tsx` (Frontend)
+- Implement a `shadcn/ui` calendar component allowing users to select preset ranges (Last 7 Days, Last 30 Days, This Year) or a custom date range.
+
+#### [MODIFY] `src/pages/DashboardPage.tsx` & `src/pages/AnalyticsPage.tsx` (Frontend)
+- Lift the date state to the page level.
+- Pass the selected `startDate` and `endDate` to the `analyticsService` API calls.
+- Show loading skeletons while the new date range data is fetched.
+
+#### [MODIFY] `src/services/analyticsService.ts` (Frontend)
+- Update API fetch functions (`getKpis`, `getSalesTrend`, `getTopProducts`, etc.) to append `?start_date=X&end_date=Y` query parameters.
+
+### 2. Report Generation & Export
+Business analysts need to export data for presentations or further offline analysis. We will add CSV/Excel and PDF export capabilities.
+
+#### [NEW] `com.retailiq.api.controller.ReportController` (Backend)
+- Create a new REST controller to handle export requests.
+- Add `/api/v1/reports/export/sales` endpoint to download order data as a CSV stream.
+- Add `/api/v1/reports/export/products` endpoint to download inventory/product performance as a CSV stream.
+
+#### [NEW] `com.retailiq.api.service.ReportService` (Backend)
+- Implement logic to query the database using existing repositories.
+- Use Apache Commons CSV or built-in Java string builder to generate CSV formats.
+- Stream the response back to the client with `Content-Disposition: attachment`.
+
+#### [MODIFY] `src/components/layout/Header.tsx` (Frontend)
+- Add an "Export Report" dropdown button in the top navigation or dashboard header.
+- Tie the export buttons to trigger the backend download endpoints using the currently selected date range from the DateRangePicker.
+
+## Verification Plan
+
+### Automated Tests
+- **Backend**: Run Spring Boot unit tests (if they exist) to ensure the new `ReportController` initializes correctly and respects Spring Security roles (must be ADMIN or ANALYST). 
+
+### Manual Verification
+1. **Date Filtering Test**: 
+   - Open the RetailIQ frontend (`http://localhost:3000`).
+   - Navigate to the Dashboard.
+   - Change the date range using the new DatePicker to a specific past month.
+   - Verify that the KPI cards, revenue trend chart, and top products table automatically refresh and display different numbers reflecting that specific month.
+2. **Export Report Test**:
+   - On the Dashboard, click the new "Export Report" button.
+   - Wait for the download to start and open the downloaded CSV file.
+   - Verify the CSV contains the correct columns and data corresponding to the selected date range.

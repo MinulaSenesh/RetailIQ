@@ -1,0 +1,1664 @@
+================================================================================
+  RETAILIQ — E-COMMERCE ANALYTICS & BUSINESS INTELLIGENCE PLATFORM
+  Complete System Guide with shadcn/ui Professional UI Design
+  Version 1.0 | SLIIT — Information Systems Engineering
+  Target Role: Business Analyst / Data Analyst
+================================================================================
+
+TABLE OF CONTENTS
+─────────────────────────────────────────────────────────────────────────────
+  1.  Project Overview
+  2.  Full Technology Stack
+  3.  System Architecture
+  4.  Database Schema (MySQL)
+  4B. MySQL Configuration & SQL Scripts
+  5.  REST API Design (Spring Boot)
+  6.  Python Analytics Microservice
+  7.  shadcn/ui Frontend Design System
+  7B. Advanced shadcn/ui Implementation Guide
+  8.  Page-by-Page UI Design Specifications
+  9.  Component Library (shadcn/ui)
+  10. Analytics & KPI Definitions
+  11. Machine Learning — Sales Forecasting
+  12. Customer Segmentation — RFM Model
+  13. Security Architecture
+  14. Deployment (Docker + CI/CD)
+  15. Testing Strategy
+  16. Project Timeline
+  17. Career Relevance & CV Guide
+  18. Glossary
+================================================================================
+
+
+════════════════════════════════════════════════════════════════════════════════
+  SECTION 1 — PROJECT OVERVIEW
+════════════════════════════════════════════════════════════════════════════════
+
+PROJECT NAME      : RetailIQ
+SUBTITLE          : E-Commerce Analytics & Business Intelligence Platform
+VERSION           : 1.0
+UNIVERSITY        : Sri Lanka Institute of Information Technology (SLIIT)
+DEGREE            : BSc (Hons) Information Systems Engineering
+TARGET ROLES      : Business Analyst / Data Analyst
+DOCUMENT DATE     : March 2026
+
+DESCRIPTION
+───────────
+RetailIQ is a full-stack web application that ingests e-commerce sales data,
+processes it through automated ETL pipelines, stores it in MySQL, and
+visualizes insights through professional shadcn/ui dashboards and embedded
+Power BI reports.
+
+The system simulates exactly what a Business Analyst and Data Analyst does
+daily in a retail company: from raw data upload all the way to executive-level
+business intelligence reporting.
+
+CORE CAPABILITIES
+─────────────────
+  • Real-time KPI dashboards with live data from Spring Boot REST API
+  • CSV / Excel file upload with Python-powered ETL and data cleaning
+  • Customer segmentation using the RFM model (Recency, Frequency, Monetary)
+  • 30-day and 90-day sales forecasting with Scikit-learn
+  • Inventory turnover analysis and low-stock alerts
+  • Embedded Power BI dashboards for executive reporting
+  • Role-based access control: Admin / Analyst / Viewer
+  • JWT-secured stateless authentication via Spring Security
+  • Docker containerization with GitHub Actions CI/CD pipeline
+
+WHY THIS PROJECT STANDS OUT
+────────────────────────────
+  • Enterprise-grade Java Spring Boot backend (used by Amazon, Netflix, LinkedIn)
+  • Professional shadcn/ui design system — looks like a real SaaS product
+  • Covers ALL key skills in BA and DA job postings
+  • Deployable via Docker — demonstrates DevOps awareness
+  • Includes ML forecasting — shows data science capability
+  • Fully documented with BRD, ER diagrams, and API specs
+
+
+════════════════════════════════════════════════════════════════════════════════
+  SECTION 2 — FULL TECHNOLOGY STACK
+════════════════════════════════════════════════════════════════════════════════
+
+BACKEND
+───────
+  Framework       : Java Spring Boot 3.x
+  Language        : Java 17 (LTS)
+  ORM             : Hibernate JPA 6.x
+  DB Migration    : Flyway 9.x (MySQL dialect)
+  Security        : Spring Security + JWT (JJWT library)
+  API Docs        : Swagger / OpenAPI 3.x
+  Build Tool      : Maven 3.x
+  Testing         : JUnit 5 + Mockito + Spring Boot Test
+
+FRONTEND
+────────
+  Framework       : React.js 18.x
+  Language        : TypeScript
+  UI Library      : shadcn/ui (built on Radix UI primitives)
+  Styling         : Tailwind CSS 3.x
+  Charts          : Recharts (primary) + Chart.js (secondary)
+  State           : React Context API + useState / useReducer
+  HTTP Client     : Axios
+  Routing         : React Router v6
+  Forms           : React Hook Form + Zod validation
+  Icons           : Lucide React
+  Animations      : Framer Motion
+
+DATABASE
+────────
+  Primary DB      : MySQL 8.x (InnoDB engine)
+  GUI Tool        : MySQL Workbench / DBeaver / TablePlus
+  Connection Pool : HikariCP (built into Spring Boot)
+  JDBC Driver     : mysql-connector-j 8.x
+  Dialect         : org.hibernate.dialect.MySQLDialect
+
+ANALYTICS MICROSERVICE
+──────────────────────
+  Language        : Python 3.11
+  Framework       : FastAPI 0.100+
+  Data Processing : Pandas 2.x + NumPy 1.x
+  Machine Learning: Scikit-learn 1.x
+  Visualization   : Matplotlib (for report generation)
+  API Validation  : Pydantic v2
+
+BI REPORTING
+────────────
+  Tool            : Power BI Embedded (or Tableau Public as alternative)
+  Export Format   : PDF, Excel
+  Delivery        : Scheduled email reports
+
+DEVOPS & DEPLOYMENT
+───────────────────
+  Containerization: Docker + Docker Compose
+  CI/CD           : GitHub Actions
+  Reverse Proxy   : Nginx (Alpine)
+  Version Control : Git + GitHub (feature branch workflow)
+  Secrets         : Environment variables (.env files, never committed)
+
+DEVELOPMENT TOOLS
+─────────────────
+  Java IDE        : IntelliJ IDEA
+  Frontend IDE    : VS Code
+  API Testing     : Postman
+  DB GUI          : DBeaver
+  Project Mgmt    : Jira or Trello
+
+
+════════════════════════════════════════════════════════════════════════════════
+  SECTION 3 — SYSTEM ARCHITECTURE
+════════════════════════════════════════════════════════════════════════════════
+
+HIGH-LEVEL ARCHITECTURE DIAGRAM (Text)
+───────────────────────────────────────
+
+  ┌─────────────────────────────────────────────────────────────────┐
+  │                        USER BROWSER                            │
+  │               React.js + shadcn/ui (Port 3000)                 │
+  └──────────────────────────┬──────────────────────────────────────┘
+                             │ HTTPS REST API Calls
+  ┌──────────────────────────▼──────────────────────────────────────┐
+  │                    NGINX REVERSE PROXY                          │
+  │              SSL Termination  (Port 80 / 443)                   │
+  └──────┬───────────────────┬──────────────────────────────────────┘
+         │                   │
+  ┌──────▼──────┐    ┌───────▼────────┐
+  │ Spring Boot │    │  FastAPI        │
+  │ REST API    │◄──►│  Analytics      │
+  │ Port: 8080  │    │  Microservice   │
+  │             │    │  Port: 8000     │
+  └──────┬──────┘    └───────┬─────────┘
+         │                   │
+  ┌──────▼───────────────────▼──────────────────────────────────────┐
+  │                    MySQL Database                          │
+  │                         Port: 3306                              │
+  └─────────────────────────────────────────────────────────────────┘
+
+DATA FLOW
+─────────
+  1. User uploads CSV/Excel via React frontend
+  2. Spring Boot receives file, stores raw data
+  3. Spring Boot calls Python FastAPI ETL endpoint
+  4. Python cleans, validates, transforms data
+  5. Cleaned data written to MySQL (InnoDB) via Spring Boot JPA
+  6. React dashboard fetches analytics from Spring Boot REST API
+  7. Spring Boot queries MySQL and returns aggregated JSON
+  8. Charts and KPI cards render via Recharts + shadcn/ui components
+  9. Power BI Embedded component loads executive BI report
+
+MICROSERVICES RESPONSIBILITIES
+──────────────────────────────
+  Spring Boot API   → CRUD, authentication, data management, API gateway
+  Python FastAPI    → ETL pipeline, RFM scoring, ML forecasting, analytics
+  MySQL          → Data persistence, relational modeling, indexing
+  Nginx             → Load balancing, SSL termination, static file serving
+  React Frontend    → UI rendering, state management, chart rendering
+
+
+════════════════════════════════════════════════════════════════════════════════
+  SECTION 4 — DATABASE SCHEMA (MySQL)
+════════════════════════════════════════════════════════════════════════════════
+
+DESIGN PRINCIPLES
+─────────────────
+  • Third Normal Form (3NF) for OLTP tables
+  • Star Schema pattern for analytical queries
+  • All foreign keys indexed for JOIN performance
+  • TIMESTAMP columns use DEFAULT CURRENT_TIMESTAMP for audit trails
+  • DECIMAL(12,2) for all monetary values (no floating point)
+
+TABLE: customers
+────────────────
+  customer_id    INT AUTO_INCREMENT          PRIMARY KEY
+  first_name     VARCHAR(100)    NOT NULL
+  last_name      VARCHAR(100)    NOT NULL
+  email          VARCHAR(255)    UNIQUE, NOT NULL
+  phone          VARCHAR(20)
+  city           VARCHAR(100)
+  country        VARCHAR(100)    DEFAULT 'Sri Lanka'
+  created_at     TIMESTAMP       DEFAULT CURRENT_TIMESTAMP
+  segment        VARCHAR(50)     -- Champion / Loyal / At Risk / Lost / New
+  rfm_score      DECIMAL(4,2)    -- Composite RFM score (1.00 - 5.00)
+
+TABLE: categories
+─────────────────
+  category_id    INT AUTO_INCREMENT          PRIMARY KEY
+  name           VARCHAR(100)    NOT NULL
+  parent_id      INT             FK → categories (self-referencing for hierarchy)
+  created_at     TIMESTAMP       DEFAULT CURRENT_TIMESTAMP
+
+TABLE: suppliers
+────────────────
+  supplier_id    INT AUTO_INCREMENT          PRIMARY KEY
+  name           VARCHAR(255)    NOT NULL
+  contact_email  VARCHAR(255)
+  phone          VARCHAR(20)
+  country        VARCHAR(100)
+  created_at     TIMESTAMP       DEFAULT CURRENT_TIMESTAMP
+
+TABLE: products
+───────────────
+  product_id     INT AUTO_INCREMENT          PRIMARY KEY
+  product_name   VARCHAR(255)    NOT NULL
+  category_id    INT             FK → categories
+  sku            VARCHAR(100)    UNIQUE, NOT NULL
+  unit_price     DECIMAL(10,2)   NOT NULL
+  cost_price     DECIMAL(10,2)   NOT NULL
+  stock_quantity INT             DEFAULT 0
+  supplier_id    INT             FK → suppliers
+  is_active      BOOLEAN         DEFAULT TRUE
+  created_at     TIMESTAMP       DEFAULT CURRENT_TIMESTAMP
+  updated_at     TIMESTAMP       DEFAULT CURRENT_TIMESTAMP
+
+TABLE: orders
+─────────────
+  order_id         INT AUTO_INCREMENT          PRIMARY KEY
+  customer_id      INT             FK → customers
+  order_date       TIMESTAMP       NOT NULL
+  status           VARCHAR(50)     NOT NULL  -- Pending/Processing/Shipped/Delivered/Cancelled
+  total_amount     DECIMAL(12,2)   NOT NULL
+  discount_amount  DECIMAL(10,2)   DEFAULT 0
+  shipping_address TEXT
+  payment_method   VARCHAR(50)     -- Credit Card / Cash / Online Transfer
+  region           VARCHAR(100)    -- Western / Central / Southern / Northern...
+  created_at       TIMESTAMP       DEFAULT CURRENT_TIMESTAMP
+
+TABLE: order_items
+──────────────────
+  item_id        INT AUTO_INCREMENT          PRIMARY KEY
+  order_id       INT             FK → orders
+  product_id     INT             FK → products
+  quantity       INT             NOT NULL
+  unit_price     DECIMAL(10,2)   NOT NULL  -- Price at time of order (snapshot)
+  line_total     DECIMAL(12,2)   DECIMAL(12,2) AS (quantity * unit_price) STORED
+
+TABLE: inventory_log
+────────────────────
+  log_id         INT AUTO_INCREMENT          PRIMARY KEY
+  product_id     INT             FK → products
+  change_qty     INT             NOT NULL   -- Positive = restock, Negative = sale
+  reason         VARCHAR(100)    -- Sale / Restock / Adjustment / Return
+  created_at     TIMESTAMP       DEFAULT CURRENT_TIMESTAMP
+  created_by     INT             FK → users
+
+TABLE: users
+────────────
+  user_id        INT AUTO_INCREMENT          PRIMARY KEY
+  username       VARCHAR(100)    UNIQUE, NOT NULL
+  email          VARCHAR(255)    UNIQUE, NOT NULL
+  password_hash  VARCHAR(255)    NOT NULL   -- BCrypt hashed
+  role           VARCHAR(20)     NOT NULL   -- ADMIN / ANALYST / VIEWER
+  is_active      BOOLEAN         DEFAULT TRUE
+  last_login     TIMESTAMP
+  created_at     TIMESTAMP       DEFAULT CURRENT_TIMESTAMP
+
+TABLE: audit_log
+────────────────
+  log_id         INT AUTO_INCREMENT          PRIMARY KEY
+  user_id        INT             FK → users
+  action         VARCHAR(100)    NOT NULL   -- CREATE / UPDATE / DELETE / UPLOAD / LOGIN
+  table_name     VARCHAR(100)
+  record_id      INT
+  details        TEXT            -- JSON string of changes
+  ip_address     VARCHAR(45)
+  created_at     TIMESTAMP       DEFAULT CURRENT_TIMESTAMP
+
+KEY INDEXES
+───────────
+  CREATE INDEX idx_orders_customer_id     ON orders(customer_id);
+  CREATE INDEX idx_orders_order_date      ON orders(order_date);
+  CREATE INDEX idx_orders_status          ON orders(status);
+  CREATE INDEX idx_orders_region          ON orders(region);
+  CREATE INDEX idx_order_items_order_id   ON order_items(order_id);
+  CREATE INDEX idx_order_items_product_id ON order_items(product_id);
+  CREATE INDEX idx_products_category_id   ON products(category_id);
+  CREATE INDEX idx_customers_segment      ON customers(segment);
+
+
+
+════════════════════════════════════════════════════════════════════════════════
+  SECTION 4B — MYSQL-SPECIFIC CONFIGURATION & DIFFERENCES FROM POSTGRESQL
+════════════════════════════════════════════════════════════════════════════════
+
+WHY MYSQL FOR RETAILIQ?
+───────────────────────
+  • Most widely deployed open-source RDBMS in the world
+  • Industry standard in Sri Lanka and Southeast Asia for web applications
+  • Excellent Spring Boot / Hibernate integration with minimal configuration
+  • MySQL Workbench provides a powerful free GUI for schema design
+  • Supported natively by virtually every cloud provider (AWS RDS, Azure, GCP)
+  • InnoDB engine provides ACID compliance, foreign keys, and row-level locking
+
+SPRING BOOT — pom.xml DEPENDENCY
+─────────────────────────────────
+  <!-- MySQL JDBC Driver -->
+  <dependency>
+    <groupId>com.mysql</groupId>
+    <artifactId>mysql-connector-j</artifactId>
+    <scope>runtime</scope>
+  </dependency>
+
+SPRING BOOT — application.properties
+──────────────────────────────────────
+  spring.datasource.url=jdbc:mysql://localhost:3306/retailiq?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+  spring.datasource.username=${DB_USER}
+  spring.datasource.password=${DB_PASSWORD}
+  spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+  spring.jpa.database-platform=org.hibernate.dialect.MySQLDialect
+  spring.jpa.hibernate.ddl-auto=validate
+  spring.jpa.show-sql=false
+  spring.jpa.properties.hibernate.format_sql=true
+  spring.flyway.enabled=true
+  spring.flyway.locations=classpath:db/migration
+
+FLYWAY MIGRATION — V1__init_schema.sql (MySQL syntax)
+──────────────────────────────────────────────────────
+  CREATE TABLE customers (
+    customer_id   INT AUTO_INCREMENT PRIMARY KEY,
+    first_name    VARCHAR(100)    NOT NULL,
+    last_name     VARCHAR(100)    NOT NULL,
+    email         VARCHAR(255)    UNIQUE NOT NULL,
+    phone         VARCHAR(20),
+    city          VARCHAR(100),
+    country       VARCHAR(100)    DEFAULT 'Sri Lanka',
+    created_at    TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
+    segment       VARCHAR(50),
+    rfm_score     DECIMAL(4,2)
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+  CREATE TABLE categories (
+    category_id   INT AUTO_INCREMENT PRIMARY KEY,
+    name          VARCHAR(100)    NOT NULL,
+    parent_id     INT,
+    created_at    TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (parent_id) REFERENCES categories(category_id)
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+  CREATE TABLE suppliers (
+    supplier_id   INT AUTO_INCREMENT PRIMARY KEY,
+    name          VARCHAR(255)    NOT NULL,
+    contact_email VARCHAR(255),
+    phone         VARCHAR(20),
+    country       VARCHAR(100),
+    created_at    TIMESTAMP       DEFAULT CURRENT_TIMESTAMP
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+  CREATE TABLE products (
+    product_id    INT AUTO_INCREMENT PRIMARY KEY,
+    product_name  VARCHAR(255)    NOT NULL,
+    category_id   INT,
+    sku           VARCHAR(100)    UNIQUE NOT NULL,
+    unit_price    DECIMAL(10,2)   NOT NULL,
+    cost_price    DECIMAL(10,2)   NOT NULL,
+    stock_quantity INT            DEFAULT 0,
+    supplier_id   INT,
+    is_active     TINYINT(1)      DEFAULT 1,
+    created_at    TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
+    updated_at    TIMESTAMP       DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (category_id) REFERENCES categories(category_id),
+    FOREIGN KEY (supplier_id) REFERENCES suppliers(supplier_id)
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+  CREATE TABLE orders (
+    order_id         INT AUTO_INCREMENT PRIMARY KEY,
+    customer_id      INT             NOT NULL,
+    order_date       TIMESTAMP       NOT NULL,
+    status           VARCHAR(50)     NOT NULL,
+    total_amount     DECIMAL(12,2)   NOT NULL,
+    discount_amount  DECIMAL(10,2)   DEFAULT 0,
+    shipping_address TEXT,
+    payment_method   VARCHAR(50),
+    region           VARCHAR(100),
+    created_at       TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+  CREATE TABLE order_items (
+    item_id       INT AUTO_INCREMENT PRIMARY KEY,
+    order_id      INT             NOT NULL,
+    product_id    INT             NOT NULL,
+    quantity      INT             NOT NULL,
+    unit_price    DECIMAL(10,2)   NOT NULL,
+    line_total    DECIMAL(12,2)   GENERATED ALWAYS AS (quantity * unit_price) STORED,
+    FOREIGN KEY (order_id)   REFERENCES orders(order_id),
+    FOREIGN KEY (product_id) REFERENCES products(product_id)
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+  CREATE TABLE users (
+    user_id       INT AUTO_INCREMENT PRIMARY KEY,
+    username      VARCHAR(100)    UNIQUE NOT NULL,
+    email         VARCHAR(255)    UNIQUE NOT NULL,
+    password_hash VARCHAR(255)    NOT NULL,
+    role          VARCHAR(20)     NOT NULL,
+    is_active     TINYINT(1)      DEFAULT 1,
+    last_login    TIMESTAMP       NULL,
+    created_at    TIMESTAMP       DEFAULT CURRENT_TIMESTAMP
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+  CREATE TABLE inventory_log (
+    log_id        INT AUTO_INCREMENT PRIMARY KEY,
+    product_id    INT             NOT NULL,
+    change_qty    INT             NOT NULL,
+    reason        VARCHAR(100),
+    created_by    INT,
+    created_at    TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (product_id) REFERENCES products(product_id),
+    FOREIGN KEY (created_by) REFERENCES users(user_id)
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+  CREATE TABLE audit_log (
+    log_id        INT AUTO_INCREMENT PRIMARY KEY,
+    user_id       INT,
+    action        VARCHAR(100)    NOT NULL,
+    table_name    VARCHAR(100),
+    record_id     INT,
+    details       TEXT,
+    ip_address    VARCHAR(45),
+    created_at    TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+MySQL KEY DIFFERENCES FROM POSTGRESQL
+──────────────────────────────────────
+  Feature             MySQL 8.x                     PostgreSQL (old)
+  ─────────────────────────────────────────────────────────────────────
+  Auto Increment      INT AUTO_INCREMENT             SERIAL
+  Boolean             TINYINT(1) [0 or 1]            BOOLEAN
+  Current Time        CURRENT_TIMESTAMP              NOW()
+  Charset             utf8mb4 (recommended)          UTF-8 default
+  Generated Column    GENERATED ALWAYS AS (...) STORED  Same syntax
+  ON UPDATE           ON UPDATE CURRENT_TIMESTAMP    Requires trigger
+  Case Sensitivity    Table names case-insensitive   Case-sensitive on Linux
+  Default Port        3306                           5432
+  GUI Tool            MySQL Workbench                pgAdmin
+  Docker Image        mysql:8.0                      postgres:15
+
+PYTHON — MYSQL CONNECTION (analytics microservice)
+────────────────────────────────────────────────────
+  pip install mysql-connector-python sqlalchemy pymysql
+
+  # SQLAlchemy connection string for FastAPI
+  DATABASE_URL = "mysql+pymysql://user:password@retailiq-db:3306/retailiq"
+
+  # Pandas read directly from MySQL
+  import sqlalchemy
+  engine = sqlalchemy.create_engine(DATABASE_URL)
+  df = pd.read_sql("SELECT * FROM orders WHERE order_date >= %s", engine, params=[start_date])
+
+════════════════════════════════════════════════════════════════════════════════
+  SECTION 5 — REST API DESIGN (Spring Boot)
+════════════════════════════════════════════════════════════════════════════════
+
+BASE URL          : https://api.retailiq.com/api/v1
+AUTHENTICATION    : Bearer JWT token in Authorization header
+CONTENT TYPE      : application/json
+API DOCS URL      : /api/docs (Swagger UI)
+
+STANDARD RESPONSE FORMAT
+────────────────────────
+  Success:
+  {
+    "success": true,
+    "data": { ... },
+    "message": "Operation completed",
+    "timestamp": "2026-03-11T10:00:00Z"
+  }
+
+  Error:
+  {
+    "success": false,
+    "error": "RESOURCE_NOT_FOUND",
+    "message": "Customer with id 123 not found",
+    "timestamp": "2026-03-11T10:00:00Z"
+  }
+
+AUTH ENDPOINTS
+──────────────
+  POST   /auth/login           Authenticate, returns JWT access + refresh token
+  POST   /auth/logout          Invalidate tokens
+  POST   /auth/refresh         Get new access token using refresh token
+  GET    /auth/me              Get current authenticated user profile
+  PUT    /auth/change-password Change password (requires current password)
+
+ANALYTICS ENDPOINTS
+───────────────────
+  GET    /analytics/kpis                  Total revenue, orders, AOV, customers, growth %
+  GET    /analytics/sales/trend           Sales trend by date range (daily/weekly/monthly)
+  GET    /analytics/sales/by-product      Revenue and margin by product
+  GET    /analytics/sales/by-region       Geographic sales distribution
+  GET    /analytics/sales/by-category     Sales breakdown by product category
+  GET    /analytics/customers/segments    RFM-based customer segments with counts
+  GET    /analytics/customers/clv         Customer lifetime value distribution
+  GET    /analytics/inventory/turnover    Inventory turnover rate by product
+  GET    /analytics/inventory/low-stock   Products below reorder threshold
+  GET    /analytics/forecast              Revenue forecast (30d / 90d with confidence)
+  GET    /analytics/products/top          Top 10 and bottom 10 products by revenue
+  GET    /analytics/cohort                Customer cohort retention analysis
+
+QUERY PARAMETERS FOR ANALYTICS
+───────────────────────────────
+  start_date    YYYY-MM-DD    Filter start date
+  end_date      YYYY-MM-DD    Filter end date
+  period        day/week/month  Aggregation period
+  region        string          Filter by geographic region
+  category_id   integer         Filter by product category
+  limit         integer         Max records returned (default: 10)
+  page          integer         Pagination page number
+  sort          string          Sort field
+  order         asc/desc        Sort direction
+
+CUSTOMER ENDPOINTS
+──────────────────
+  GET    /customers                List customers (paginated, filterable)
+  GET    /customers/{id}           Get single customer details
+  POST   /customers                Create new customer
+  PUT    /customers/{id}           Update customer
+  DELETE /customers/{id}           Soft delete customer (is_active = false)
+  GET    /customers/{id}/orders    Get all orders for a customer
+
+ORDER ENDPOINTS
+───────────────
+  GET    /orders                   List orders (paginated, filterable by status/date/region)
+  GET    /orders/{id}              Get single order with line items
+  POST   /orders                   Create new order
+  PUT    /orders/{id}/status       Update order status
+  GET    /orders/export            Export orders as CSV
+
+PRODUCT ENDPOINTS
+─────────────────
+  GET    /products                 List products (paginated, filterable)
+  GET    /products/{id}            Get single product with stock info
+  POST   /products                 Create new product
+  PUT    /products/{id}            Update product details
+  PUT    /products/{id}/stock      Update stock quantity
+  GET    /products/categories      List all product categories
+
+DATA MANAGEMENT ENDPOINTS
+──────────────────────────
+  POST   /data/upload              Upload CSV or Excel file (multipart/form-data)
+  GET    /data/upload/history      List all past data uploads with status
+  GET    /data/upload/{id}/errors  Get validation errors from a specific upload
+  POST   /reports/generate         Trigger report generation
+  GET    /reports/export           Download generated report as PDF or Excel
+
+USER MANAGEMENT ENDPOINTS (Admin only)
+───────────────────────────────────────
+  GET    /users                    List all system users
+  POST   /users                    Create new user with role
+  PUT    /users/{id}               Update user details and role
+  DELETE /users/{id}               Deactivate user account
+
+
+════════════════════════════════════════════════════════════════════════════════
+  SECTION 6 — PYTHON ANALYTICS MICROSERVICE (FastAPI)
+════════════════════════════════════════════════════════════════════════════════
+
+BASE URL          : http://analytics:8000 (internal Docker network)
+CALLED BY         : Spring Boot backend (internal service-to-service)
+
+ETL PIPELINE ENDPOINTS
+───────────────────────
+  POST   /etl/process             Process uploaded file: clean, validate, transform
+  POST   /etl/validate            Validate file schema without importing
+  GET    /etl/status/{job_id}     Get ETL job status (pending/running/complete/failed)
+
+ANALYTICS ENDPOINTS
+───────────────────
+  POST   /analytics/kpis          Calculate KPIs for given date range
+  POST   /analytics/rfm           Run RFM segmentation on all customers
+  POST   /analytics/forecast      Generate sales forecast for next N days
+  POST   /analytics/cohort        Build customer cohort retention matrix
+  POST   /analytics/clv           Calculate customer lifetime values
+
+ETL PIPELINE STEPS
+──────────────────
+  Step 1: File Ingestion
+    - Accept CSV or Excel via multipart upload
+    - Detect encoding (UTF-8, UTF-16, Latin-1)
+    - Parse with Pandas read_csv() or read_excel()
+
+  Step 2: Schema Validation
+    - Check required columns are present
+    - Validate data types (dates, numbers, strings)
+    - Report missing or malformed fields
+
+  Step 3: Data Cleaning
+    - Strip leading/trailing whitespace from strings
+    - Standardize date formats to ISO 8601 (YYYY-MM-DD)
+    - Remove duplicate rows based on order_id
+    - Fill NULL values: 0 for numeric, 'Unknown' for optional strings
+    - Normalize region names (e.g. "western" → "Western Province")
+
+  Step 4: Business Rule Validation
+    - Verify unit_price > 0
+    - Verify quantity > 0
+    - Verify order_date is not in the future
+    - Flag orders where line_total != quantity * unit_price
+
+  Step 5: Load
+    - Insert cleaned records via Spring Boot API endpoint
+    - Log all errors with row numbers for user review
+    - Return job summary: total rows, inserted, skipped, errors
+
+
+════════════════════════════════════════════════════════════════════════════════
+  SECTION 7 — shadcn/ui FRONTEND DESIGN SYSTEM
+════════════════════════════════════════════════════════════════════════════════
+
+WHAT IS shadcn/ui?
+──────────────────
+shadcn/ui is not a traditional component library. It is a collection of
+beautifully designed, accessible React components built on Radix UI primitives
+and styled with Tailwind CSS. Components are copied directly into your project
+giving full ownership and customization control.
+
+WHY shadcn/ui FOR RETAILIQ?
+────────────────────────────
+  • Professional, polished look — looks like a real enterprise SaaS product
+  • Built on Radix UI — fully accessible (WCAG 2.1 compliant)
+  • Tailwind CSS powered — highly customizable design tokens
+  • Used by top companies — instantly recognizable quality signal to employers
+  • Dark mode built-in — modern UX expectation
+  • TypeScript-first — type safety throughout
+
+DESIGN TOKENS (globals.css)
+────────────────────────────
+  :root {
+    --background:           0 0% 100%;
+    --foreground:           222.2 84% 4.9%;
+    --card:                 0 0% 100%;
+    --card-foreground:      222.2 84% 4.9%;
+    --primary:              221.2 83.2% 53.3%;    /* Blue — main brand color */
+    --primary-foreground:   210 40% 98%;
+    --secondary:            210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted:                210 40% 96.1%;
+    --muted-foreground:     215.4 16.3% 46.9%;
+    --accent:               210 40% 96.1%;
+    --destructive:          0 84.2% 60.2%;        /* Red — alerts/errors */
+    --border:               214.3 31.8% 91.4%;
+    --ring:                 221.2 83.2% 53.3%;
+    --radius:               0.5rem;
+  }
+
+  .dark {
+    --background:           222.2 84% 4.9%;
+    --foreground:           210 40% 98%;
+    --card:                 222.2 84% 4.9%;
+    --primary:              217.2 91.2% 59.8%;
+    --muted:                217.2 32.6% 17.5%;
+    --border:               217.2 32.6% 17.5%;
+  }
+
+TYPOGRAPHY SCALE
+────────────────
+  Page Title        : text-3xl font-bold tracking-tight
+  Section Heading   : text-2xl font-semibold tracking-tight
+  Card Title        : text-lg font-semibold
+  Body Text         : text-sm text-muted-foreground
+  KPI Value         : text-4xl font-bold tabular-nums
+  KPI Label         : text-sm font-medium text-muted-foreground
+  Table Header      : text-xs font-medium uppercase tracking-wider
+  Badge             : text-xs font-semibold
+
+SPACING SYSTEM
+──────────────
+  Page padding      : p-6 (24px)
+  Card gap          : gap-4 (16px)
+  Section gap       : gap-6 (24px) to gap-8 (32px)
+  Inner card pad    : p-4 to p-6
+  Button padding    : px-4 py-2
+
+COLOR MEANINGS
+──────────────
+  Blue (primary)    : Primary actions, links, active states
+  Green             : Positive trends, success states, profit
+  Red               : Negative trends, errors, alerts, loss
+  Yellow/Amber      : Warnings, low stock, pending states
+  Gray/Muted        : Labels, secondary text, borders
+  White/Card        : Content surfaces
+
+
+
+════════════════════════════════════════════════════════════════════════════════
+  SECTION 7B — ADVANCED shadcn/ui IMPLEMENTATION GUIDE
+════════════════════════════════════════════════════════════════════════════════
+
+PROJECT SETUP COMMANDS
+──────────────────────
+  # 1. Create React + TypeScript + Vite project
+  npm create vite@latest retailiq-frontend -- --template react-ts
+  cd retailiq-frontend
+
+  # 2. Install and configure Tailwind CSS
+  npm install -D tailwindcss postcss autoprefixer
+  npx tailwindcss init -p
+
+  # 3. Initialize shadcn/ui
+  npx shadcn-ui@latest init
+  # Choose: TypeScript=Yes, Style=Default, BaseColor=Slate, CSSVariables=Yes
+
+  # 4. Install all required shadcn/ui components
+  npx shadcn-ui@latest add button card input label select table badge
+  npx shadcn-ui@latest add dialog sheet tabs alert dropdown-menu
+  npx shadcn-ui@latest add calendar popover form checkbox switch
+  npx shadcn-ui@latest add avatar separator skeleton progress toast
+  npx shadcn-ui@latest add command navigation-menu scroll-area
+  npx shadcn-ui@latest add tooltip hover-card collapsible
+
+  # 5. Install supporting libraries
+  npm install recharts axios react-router-dom react-hook-form zod
+  npm install @hookform/resolvers lucide-react framer-motion
+  npm install date-fns @tanstack/react-table
+
+COMPLETE FOLDER STRUCTURE
+─────────────────────────
+  src/
+  ├── components/
+  │   ├── ui/                    ← shadcn/ui components (auto-generated)
+  │   │   ├── button.tsx
+  │   │   ├── card.tsx
+  │   │   ├── table.tsx
+  │   │   └── ... (all shadcn components)
+  │   ├── layout/
+  │   │   ├── Sidebar.tsx        ← Main navigation sidebar
+  │   │   ├── Header.tsx         ← Top header bar
+  │   │   └── AppLayout.tsx      ← Wrapper with sidebar + header
+  │   ├── dashboard/
+  │   │   ├── KPICard.tsx        ← KPI metric card with trend
+  │   │   ├── SalesTrendChart.tsx ← Area chart for revenue trend
+  │   │   ├── CategoryPieChart.tsx ← Donut chart for categories
+  │   │   ├── TopProductsTable.tsx ← Sortable products table
+  │   │   └── CustomerSegmentChart.tsx ← RFM bar chart
+  │   ├── analytics/
+  │   │   ├── ForecastChart.tsx  ← ML forecast line chart
+  │   │   ├── CohortTable.tsx    ← Customer cohort heatmap
+  │   │   └── RFMScatterPlot.tsx ← Customer RFM scatter
+  │   ├── data/
+  │   │   ├── DataTable.tsx      ← Reusable table with @tanstack/react-table
+  │   │   └── UploadZone.tsx     ← Drag-and-drop file upload
+  │   └── shared/
+  │       ├── DateRangePicker.tsx
+  │       ├── StatusBadge.tsx
+  │       ├── SegmentBadge.tsx
+  │       └── LoadingSkeleton.tsx
+  ├── pages/
+  │   ├── LoginPage.tsx
+  │   ├── DashboardPage.tsx
+  │   ├── AnalyticsPage.tsx
+  │   ├── ProductsPage.tsx
+  │   ├── CustomersPage.tsx
+  │   ├── UploadPage.tsx
+  │   ├── ReportsPage.tsx
+  │   └── SettingsPage.tsx
+  ├── services/
+  │   ├── api.ts                 ← Axios instance with interceptors
+  │   ├── authService.ts
+  │   ├── analyticsService.ts
+  │   ├── productService.ts
+  │   └── customerService.ts
+  ├── context/
+  │   ├── AuthContext.tsx        ← JWT auth state
+  │   └── ThemeContext.tsx       ← Dark/light mode
+  ├── hooks/
+  │   ├── useAnalytics.ts        ← Custom hook for analytics data
+  │   ├── useFilters.ts          ← Date/region/category filters
+  │   └── useAuth.ts             ← Auth state and actions
+  ├── types/
+  │   ├── analytics.ts           ← TypeScript interfaces for API responses
+  │   ├── customer.ts
+  │   ├── product.ts
+  │   └── order.ts
+  ├── utils/
+  │   ├── formatters.ts          ← Currency, date, number formatters
+  │   └── constants.ts           ← App-wide constants
+  ├── App.tsx
+  └── main.tsx
+
+KEY COMPONENT CODE PATTERNS
+────────────────────────────
+
+KPICard.tsx:
+  import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+  import { Badge } from "@/components/ui/badge"
+  import { TrendingUp, TrendingDown, LucideIcon } from "lucide-react"
+
+  interface KPICardProps {
+    title: string
+    value: string
+    change: number        // +12.5 or -3.2 (percentage)
+    icon: LucideIcon
+    prefix?: string       // e.g. "LKR "
+  }
+
+  export function KPICard({ title, value, change, icon: Icon, prefix }: KPICardProps) {
+    const isPositive = change >= 0
+    return (
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">{title}</CardTitle>
+          <Icon className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">{prefix}{value}</div>
+          <Badge variant={isPositive ? "default" : "destructive"} className="mt-1">
+            {isPositive ? <TrendingUp className="h-3 w-3 mr-1" /> : <TrendingDown className="h-3 w-3 mr-1" />}
+            {Math.abs(change)}% vs last period
+          </Badge>
+        </CardContent>
+      </Card>
+    )
+  }
+
+StatusBadge.tsx:
+  const STATUS_VARIANTS = {
+    Delivered:   "bg-green-100 text-green-800",
+    Shipped:     "bg-blue-100 text-blue-800",
+    Processing:  "bg-yellow-100 text-yellow-800",
+    Pending:     "bg-gray-100 text-gray-800",
+    Cancelled:   "bg-red-100 text-red-800",
+  }
+
+SegmentBadge.tsx:
+  const SEGMENT_VARIANTS = {
+    Champions:   "bg-purple-100 text-purple-800",
+    Loyal:       "bg-blue-100 text-blue-800",
+    "At Risk":   "bg-amber-100 text-amber-800",
+    Lost:        "bg-red-100 text-red-800",
+    New:         "bg-green-100 text-green-800",
+  }
+
+API SERVICE (api.ts):
+  import axios from "axios"
+
+  const api = axios.create({
+    baseURL: import.meta.env.VITE_API_URL || "http://localhost:8080/api/v1",
+    headers: { "Content-Type": "application/json" },
+  })
+
+  // Auto-attach JWT token to every request
+  api.interceptors.request.use((config) => {
+    const token = sessionStorage.getItem("access_token")
+    if (token) config.headers.Authorization = `Bearer ${token}`
+    return config
+  })
+
+  // Auto-refresh token on 401
+  api.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+      if (error.response?.status === 401) {
+        // Attempt token refresh, else redirect to login
+      }
+      return Promise.reject(error)
+    }
+  )
+
+  export default api
+
+DARK MODE IMPLEMENTATION
+────────────────────────
+  // ThemeContext.tsx
+  // shadcn/ui dark mode works by adding class="dark" to <html> element
+
+  const [isDark, setIsDark] = useState(false)
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", isDark)
+    localStorage.setItem("theme", isDark ? "dark" : "light")
+  }, [isDark])
+
+  // In Sidebar:
+  <Switch checked={isDark} onCheckedChange={setIsDark} />
+  <span className="text-sm">Dark Mode</span>
+
+RECHARTS INTEGRATION WITH SHADCN THEME
+────────────────────────────────────────
+  // Use CSS variables for chart colors to match shadcn theme
+  const CHART_COLORS = {
+    primary:    "hsl(221.2 83.2% 53.3%)",   // --primary
+    success:    "hsl(142.1 76.2% 36.3%)",   // green
+    warning:    "hsl(47.9 95.8% 53.1%)",    // yellow
+    destructive:"hsl(0 84.2% 60.2%)",       // --destructive
+    muted:      "hsl(215.4 16.3% 46.9%)",   // --muted-foreground
+  }
+
+  // SalesTrendChart with shadcn Card wrapper:
+  <Card>
+    <CardHeader>
+      <CardTitle>Revenue Trend</CardTitle>
+      <div className="flex gap-2">
+        {["Daily","Weekly","Monthly"].map(p => (
+          <Button key={p} variant={period===p?"default":"outline"} size="sm"
+            onClick={() => setPeriod(p)}>{p}</Button>
+        ))}
+      </div>
+    </CardHeader>
+    <CardContent>
+      <ResponsiveContainer width="100%" height={300}>
+        <AreaChart data={data}>
+          <defs>
+            <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor={CHART_COLORS.primary} stopOpacity={0.3}/>
+              <stop offset="95%" stopColor={CHART_COLORS.primary} stopOpacity={0}/>
+            </linearGradient>
+          </defs>
+          <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+          <XAxis dataKey="date" className="text-xs" />
+          <YAxis tickFormatter={(v) => `LKR ${(v/1000).toFixed(0)}K`} />
+          <Tooltip formatter={(v) => [`LKR ${v.toLocaleString()}`, "Revenue"]} />
+          <Area type="monotone" dataKey="revenue"
+            stroke={CHART_COLORS.primary} fill="url(#colorRevenue)" />
+        </AreaChart>
+      </ResponsiveContainer>
+    </CardContent>
+  </Card>
+
+LOADING STATES WITH SKELETON
+─────────────────────────────
+  // While API data is loading, show skeleton placeholders
+  import { Skeleton } from "@/components/ui/skeleton"
+
+  // KPI Card Skeleton:
+  <Card>
+    <CardHeader><Skeleton className="h-4 w-24" /></CardHeader>
+    <CardContent>
+      <Skeleton className="h-8 w-32 mb-2" />
+      <Skeleton className="h-5 w-20" />
+    </CardContent>
+  </Card>
+
+  // Table Skeleton:
+  {Array.from({length: 10}).map((_, i) => (
+    <TableRow key={i}>
+      {columns.map((_, j) => (
+        <TableCell key={j}><Skeleton className="h-4 w-full" /></TableCell>
+      ))}
+    </TableRow>
+  ))}
+
+TOAST NOTIFICATIONS
+────────────────────
+  import { useToast } from "@/components/ui/use-toast"
+
+  const { toast } = useToast()
+
+  // Success:
+  toast({ title: "Import Complete", description: "1,842 records imported successfully." })
+
+  // Error:
+  toast({ title: "Upload Failed", description: error.message, variant: "destructive" })
+
+════════════════════════════════════════════════════════════════════════════════
+  SECTION 8 — PAGE-BY-PAGE UI DESIGN SPECIFICATIONS
+════════════════════════════════════════════════════════════════════════════════
+
+────────────────────────────────────────────────────
+PAGE 1: LOGIN PAGE  (/login)
+────────────────────────────────────────────────────
+Layout          : Centered card on gradient background
+Background      : Subtle blue-gray gradient (from-slate-900 to-slate-700)
+Card            : White card, rounded-2xl, shadow-2xl, max-w-md
+Logo            : "RetailIQ" wordmark in blue, above card
+
+Components:
+  • Card, CardHeader, CardContent (shadcn/ui)
+  • Input with Label — Email field
+  • Input with Label — Password field (type="password")
+  • Button — "Sign In" (full width, primary)
+  • Alert — Error message if login fails (destructive variant)
+  • Checkbox — "Remember me"
+
+State:
+  • Loading spinner inside button during API call
+  • Form validation via React Hook Form + Zod
+  • JWT token stored in memory (not localStorage)
+  • Redirect to /dashboard on success
+
+────────────────────────────────────────────────────
+PAGE 2: DASHBOARD  (/dashboard)
+────────────────────────────────────────────────────
+Layout          : Sidebar navigation + main content area
+Sidebar width   : 240px, collapsible on mobile
+Header          : 64px fixed top bar with breadcrumb + user avatar
+
+TOP SECTION — Date Range Filter Bar:
+  • DatePickerWithRange (shadcn/ui calendar)
+  • Select — Region filter (All / Western / Central / Southern...)
+  • Select — Category filter
+  • Button — "Apply Filters"
+  • Button — "Export Report" (outline variant)
+
+KPI CARDS ROW (4 cards, equal width grid):
+  Card 1: Total Revenue
+    - Large number: "LKR 4,250,000"
+    - Trend badge: "+12.5% vs last period" (green)
+    - Sparkline chart (7 days mini)
+    - Icon: DollarSign (Lucide)
+
+  Card 2: Total Orders
+    - Large number: "1,847"
+    - Trend badge: "+8.2% vs last period" (green)
+    - Sparkline chart
+    - Icon: ShoppingCart (Lucide)
+
+  Card 3: Average Order Value
+    - Large number: "LKR 2,301"
+    - Trend badge: "+3.1% vs last period" (green)
+    - Sparkline chart
+    - Icon: TrendingUp (Lucide)
+
+  Card 4: Active Customers
+    - Large number: "634"
+    - Trend badge: "-1.2% vs last period" (red)
+    - Sparkline chart
+    - Icon: Users (Lucide)
+
+MAIN CHARTS ROW (2 columns):
+  Left Chart (70% width): Revenue Trend
+    - shadcn/ui Card with CardHeader + CardContent
+    - Recharts AreaChart with gradient fill
+    - Toggle buttons: Daily / Weekly / Monthly
+    - Y-axis: LKR formatted
+    - Tooltip: Date + Revenue + Orders
+
+  Right Chart (30% width): Sales by Category
+    - Recharts PieChart / DonutChart
+    - Legend with color swatches
+    - Hover tooltip shows % and value
+
+BOTTOM ROW (2 columns):
+  Left: Top Products Table
+    - shadcn/ui Table component
+    - Columns: Product, Category, Revenue, Units, Margin %
+    - Sortable column headers
+    - Revenue bar indicator per row (visual mini bar)
+    - "View All" link to Products page
+
+  Right: Customer Segments
+    - Recharts BarChart (horizontal)
+    - Segments: Champion / Loyal / At Risk / Lost / New
+    - Color coded bars
+    - Count + Percentage labels
+
+────────────────────────────────────────────────────
+PAGE 3: ANALYTICS  (/analytics)
+────────────────────────────────────────────────────
+Layout          : Full-width sections with Tabs navigation
+
+Tabs (shadcn/ui Tabs component):
+  Tab 1: Sales Analysis
+    - Revenue trend line chart (full width)
+    - Side-by-side bar: This Period vs Last Period
+    - Regional heat map table (regions × months)
+
+  Tab 2: Customer Analysis
+    - RFM Segment distribution (BarChart)
+    - Customer Lifetime Value histogram
+    - Cohort retention table (heatmap colored cells)
+    - New vs Returning customers over time (StackedAreaChart)
+
+  Tab 3: Product Analysis
+    - Products performance table with sorting
+    - Scatter plot: Revenue vs Margin by product
+    - Category performance tree map
+
+  Tab 4: Forecasting
+    - 30-day forecast line chart
+    - Confidence interval shading (upper/lower bounds)
+    - Model accuracy metrics: MAE, RMSE, R² (Badge components)
+    - Switch toggle: 30-day / 90-day forecast
+
+────────────────────────────────────────────────────
+PAGE 4: PRODUCTS  (/products)
+────────────────────────────────────────────────────
+Layout          : DataTable with filters + action panel
+
+Top Bar:
+  • Input — Search by product name or SKU
+  • Select — Filter by category
+  • Select — Filter by stock status (In Stock / Low Stock / Out of Stock)
+  • Button — "Add Product" (primary)
+  • Button — "Export CSV" (outline)
+
+Data Table (shadcn/ui Table):
+  Columns:
+    - Product Name + SKU (stacked cell)
+    - Category Badge
+    - Unit Price (right aligned)
+    - Cost Price (right aligned)
+    - Gross Margin % (colored: green if >30%, amber if 10-30%, red if <10%)
+    - Stock Qty (with colored dot: green / amber / red)
+    - Status Badge (Active / Inactive)
+    - Actions (DropdownMenu: Edit, View, Deactivate)
+
+  Features:
+    - Sortable columns
+    - Pagination (10 / 25 / 50 per page selector)
+    - Row selection checkboxes for bulk actions
+    - Bulk action: Deactivate selected / Export selected
+
+────────────────────────────────────────────────────
+PAGE 5: CUSTOMERS  (/customers)
+────────────────────────────────────────────────────
+Layout          : DataTable with customer detail slide-over panel
+
+Data Table Columns:
+  - Name + Email (stacked)
+  - City / Region
+  - Segment Badge (Champion=blue / Loyal=green / At Risk=amber / Lost=red / New=gray)
+  - Total Orders (number)
+  - Total Spent (LKR formatted)
+  - Last Order Date (relative: "3 days ago")
+  - RFM Score (numeric)
+  - Actions (View Profile, Edit)
+
+Customer Detail Sheet (shadcn/ui Sheet — slides from right):
+  - Customer info header (name, email, phone, segment badge)
+  - Summary stats: Total orders, Total spent, Avg order value, Last purchase
+  - Order history table (last 10 orders)
+  - RFM breakdown bar chart (R score, F score, M score)
+  - Tabs: Orders | Notes | Activity Log
+
+────────────────────────────────────────────────────
+PAGE 6: DATA UPLOAD  (/upload)
+────────────────────────────────────────────────────
+Layout          : Stepper UI (3 steps)
+
+Step 1: Upload File
+  - Drag-and-drop zone (dashed border, hover highlight)
+  - "Click to browse" fallback
+  - Accepted formats: .csv, .xlsx, .xls
+  - Max file size: 50MB
+  - Progress bar during upload
+
+Step 2: Validation Preview
+  - Table preview of first 10 rows
+  - Column mapping interface (if headers don't match expected)
+  - Validation summary: X rows valid, Y rows with errors
+  - Error rows highlighted in red with error description
+  - Option to download error report
+
+Step 3: Import
+  - Confirmation summary card
+  - Import button triggers ETL pipeline
+  - Real-time progress (WebSocket or polling)
+  - Success screen: "1,842 records imported successfully"
+  - Error summary if partial import
+
+Upload History Table:
+  - Filename, Date, Rows Imported, Errors, Status, Actions (View Errors)
+
+────────────────────────────────────────────────────
+PAGE 7: REPORTS  (/reports)
+────────────────────────────────────────────────────
+Layout          : Report gallery + embedded viewer
+
+Report Cards (grid layout):
+  - Monthly Executive Summary (auto-generated)
+  - Product Performance Report
+  - Customer Segmentation Report
+  - Inventory Analysis Report
+  - Custom Date Range Report
+
+Power BI Embed:
+  - Full-width iframe with Power BI report
+  - Filter panel on right side
+  - Download as PDF button
+  - Schedule email delivery button
+
+────────────────────────────────────────────────────
+PAGE 8: SETTINGS  (/settings)
+────────────────────────────────────────────────────
+Layout          : Tabs layout
+
+Tabs:
+  • Profile Settings (name, email, password change)
+  • User Management (Admin only — user list, roles, invite)
+  • System Settings (Admin only — thresholds, notifications)
+  • Audit Log (table of recent system actions)
+
+────────────────────────────────────────────────────
+GLOBAL LAYOUT — SIDEBAR NAVIGATION
+────────────────────────────────────────────────────
+Sidebar Items:
+  🏠  Dashboard         /dashboard
+  📊  Analytics         /analytics
+  📦  Products          /products
+  👥  Customers         /customers
+  📁  Data Upload       /upload
+  📋  Reports           /reports
+  ⚙️  Settings          /settings
+
+Bottom of Sidebar:
+  - User avatar + name + role badge
+  - Dark mode toggle (Switch component)
+  - Logout button
+
+Mobile:
+  - Sheet component (shadcn/ui) for slide-in menu
+  - Hamburger icon in top header
+  - Bottom navigation bar (4 main items)
+
+
+════════════════════════════════════════════════════════════════════════════════
+  SECTION 9 — COMPONENT LIBRARY (shadcn/ui)
+════════════════════════════════════════════════════════════════════════════════
+
+INSTALLATION COMMAND
+────────────────────
+  npx shadcn-ui@latest init
+  npx shadcn-ui@latest add button card input label select table badge
+  npx shadcn-ui@latest add dialog sheet tabs alert dropdown-menu
+  npx shadcn-ui@latest add calendar date-picker form checkbox switch
+  npx shadcn-ui@latest add avatar separator skeleton progress toast
+
+COMPONENTS USED IN RETAILIQ
+────────────────────────────
+
+  Button          → All CTAs, form submits, export triggers
+  Card            → KPI cards, chart wrappers, report previews
+  Input           → Search, login form, filter fields
+  Label           → Form field labels
+  Select          → Region filter, category filter, pagination
+  Table           → Products, Customers, Orders data tables
+  Badge           → Segment labels, status indicators, trend %
+  Dialog          → Confirmation modals, add/edit forms
+  Sheet           → Customer detail panel, mobile nav
+  Tabs            → Analytics sub-pages, Settings sections
+  Alert           → Login errors, success notifications, warnings
+  DropdownMenu    → Row action menus (Edit, Delete, Export)
+  Calendar        → Date range picker for analytics filters
+  Form            → React Hook Form + Zod integration
+  Checkbox        → Table row selection, "Remember me"
+  Switch          → Dark mode, active/inactive toggles
+  Avatar          → User profile in header and sidebar
+  Separator       → Visual section dividers
+  Skeleton        → Loading placeholders for charts and tables
+  Progress        → Upload progress, ETL job progress
+  Toast           → Success/error notifications (Toaster)
+
+CUSTOM COMPONENTS BUILT ON shadcn/ui
+──────────────────────────────────────
+  KPICard         → Card + trend badge + sparkline + icon
+  DataTable       → Table + sorting + pagination + row selection
+  ChartCard       → Card + chart toggle + download button
+  StatusBadge     → Badge with semantic colors for order status
+  SegmentBadge    → Badge with RFM segment colors
+  UploadZone      → Drag-and-drop file upload area
+  DateRangePicker → Calendar with start/end date selection
+  MetricTrend     → Value + arrow icon + % change display
+
+
+════════════════════════════════════════════════════════════════════════════════
+  SECTION 10 — ANALYTICS & KPI DEFINITIONS
+════════════════════════════════════════════════════════════════════════════════
+
+KPI                       FORMULA                                   TARGET
+─────────────────────────────────────────────────────────────────────────────
+Total Revenue             SUM(order_items.line_total)               Track MoM
+Net Revenue               Total Revenue - Discount Amount            Track MoM
+Average Order Value       Total Revenue / Total Orders              Increase
+Customer Count            COUNT(DISTINCT customer_id)               Increase
+Gross Profit Margin       (Revenue - COGS) / Revenue × 100         > 30%
+Customer Lifetime Value   AOV × Purchase Frequency × Avg Lifespan  Track
+Inventory Turnover        COGS / Avg Inventory Value               > 4x/year
+Repeat Purchase Rate      2+ order customers / Total Customers     > 40%
+Customer Acquisition Rate New Customers / Total Customers × 100    Increase
+Order Fulfillment Rate    Delivered Orders / Total Orders × 100    > 95%
+Revenue per Customer      Total Revenue / Active Customers          Increase
+Top Product Revenue %     Top Product Revenue / Total Revenue       < 30%
+
+PERIOD COMPARISONS
+──────────────────
+  All KPIs support comparison against:
+  - Previous period (same length, immediately before)
+  - Same period last year (YoY comparison)
+  - Custom baseline period
+
+
+════════════════════════════════════════════════════════════════════════════════
+  SECTION 11 — MACHINE LEARNING: SALES FORECASTING
+════════════════════════════════════════════════════════════════════════════════
+
+OBJECTIVE
+─────────
+Predict daily revenue for the next 30 and 90 days using historical order data.
+
+MODEL PIPELINE
+──────────────
+  Step 1: Data Preparation
+    - Load daily revenue aggregates from MySQL
+    - Ensure no gaps in date sequence (fill missing days with 0)
+    - Minimum 90 days of history required
+
+  Step 2: Feature Engineering
+    pandas features created:
+    - lag_1, lag_7, lag_14, lag_30     : Lag features (previous day/week/month revenue)
+    - rolling_mean_7, rolling_mean_30  : Rolling average revenue
+    - day_of_week                      : 0=Monday ... 6=Sunday
+    - month                            : 1-12
+    - quarter                          : 1-4
+    - is_weekend                       : Boolean
+    - day_of_year                      : 1-365
+
+  Step 3: Train/Test Split
+    - Split by date (not random): last 20% of dates = test set
+    - This prevents data leakage (future data in training)
+
+  Step 4: Model Training
+    Primary model   : RandomForestRegressor(n_estimators=100)
+    Fallback model  : LinearRegression (simpler, more interpretable)
+    Cross-validation: TimeSeriesSplit(n_splits=5)
+
+  Step 5: Evaluation
+    Metric          Formula                   Good Value
+    MAE             Mean Absolute Error       < 10% of avg daily revenue
+    RMSE            Root Mean Square Error    < 15% of avg daily revenue
+    R² Score        Coefficient of determination > 0.75
+
+  Step 6: Forecast Generation
+    - Predict next 30 / 90 days iteratively
+    - Calculate 90% confidence interval using prediction variance
+    - Return: date, predicted_revenue, lower_bound, upper_bound
+
+  Step 7: API Response
+    {
+      "forecast_days": 30,
+      "model": "RandomForestRegressor",
+      "mae": 12450.50,
+      "r2": 0.847,
+      "predictions": [
+        {"date": "2026-03-12", "revenue": 125000, "lower": 108000, "upper": 142000},
+        ...
+      ]
+    }
+
+
+════════════════════════════════════════════════════════════════════════════════
+  SECTION 12 — CUSTOMER SEGMENTATION: RFM MODEL
+════════════════════════════════════════════════════════════════════════════════
+
+RFM DIMENSIONS
+──────────────
+  R — Recency     : Days since the customer's last order (lower = better)
+  F — Frequency   : Total number of orders placed (higher = better)
+  M — Monetary    : Total amount spent by customer (higher = better)
+
+SCORING METHOD
+──────────────
+  Each dimension scored 1-5 using Pandas qcut() (equal-size quintiles):
+    Score 5 = Top 20% (best customers for that dimension)
+    Score 1 = Bottom 20% (worst customers for that dimension)
+
+  Note: Recency is INVERTED — lower days = higher score
+
+SEGMENT CLASSIFICATION
+───────────────────────
+  Segment           R Score   F Score   M Score   Action
+  ─────────────────────────────────────────────────────────────────
+  Champions         4-5       4-5       4-5       Reward, ask for reviews
+  Loyal Customers   3-5       3-5       3-5       Upsell, loyalty program
+  Potential Loyal   4-5       1-2       1-2       Onboarding, engagement
+  At Risk           1-2       3-5       3-5       Re-engagement campaign
+  Cannot Lose       1-2       4-5       4-5       Win-back with offers
+  Lost Customers    1-2       1-2       1-2       Low priority, survey
+  New Customers     5         1         1         Welcome sequence
+  Promising         3-4       1         1         Targeted promotions
+
+PYTHON IMPLEMENTATION SUMMARY
+──────────────────────────────
+  1. Query orders table: customer_id, order_date, order_total
+  2. Calculate R: (TODAY - MAX(order_date)).days
+  3. Calculate F: COUNT(order_id) per customer
+  4. Calculate M: SUM(total_amount) per customer
+  5. Score each with pd.qcut(labels=[1,2,3,4,5])
+  6. Composite RFM string: str(R)+str(F)+str(M) e.g. "554"
+  7. Map to segment using lookup table
+  8. UPDATE customers.segment in MySQL
+
+
+════════════════════════════════════════════════════════════════════════════════
+  SECTION 13 — SECURITY ARCHITECTURE
+════════════════════════════════════════════════════════════════════════════════
+
+AUTHENTICATION FLOW
+───────────────────
+  1. User sends POST /auth/login with email + password
+  2. Spring Security loads user from DB, BCrypt verifies password
+  3. On success: generate JWT access token (24hr) + refresh token (7d)
+  4. Client stores tokens in memory (not localStorage for XSS safety)
+  5. All subsequent requests include: Authorization: Bearer <access_token>
+  6. Spring Security filter validates JWT on every request
+  7. On access token expiry: POST /auth/refresh with refresh token
+  8. On logout: refresh token blacklisted in DB
+
+ROLE-BASED ACCESS CONTROL
+───────────────────────────
+  ADMIN   → Full access: user management, system settings, all data
+  ANALYST → Upload data, run analytics, generate reports, no user mgmt
+  VIEWER  → Read-only dashboards and reports only
+
+SECURITY MEASURES CHECKLIST
+─────────────────────────────
+  [x] BCrypt password hashing (strength = 12)
+  [x] JWT with short expiry (24hr access / 7d refresh)
+  [x] HTTPS enforced in production
+  [x] SQL injection prevented by Hibernate parameterized queries
+  [x] CORS configured to allow only frontend origin
+  [x] Rate limiting on /auth/login (5 attempts per minute)
+  [x] Input validation on all API endpoints (@Valid annotations)
+  [x] Sensitive data masked in all application logs
+  [x] Spring Security CSRF protection for session-based endpoints
+  [x] File upload restricted to CSV/XLSX, max 50MB
+  [x] Audit log for all data modifications and logins
+
+
+════════════════════════════════════════════════════════════════════════════════
+  SECTION 14 — DEPLOYMENT ARCHITECTURE
+════════════════════════════════════════════════════════════════════════════════
+
+DOCKER SERVICES (docker-compose.yml)
+──────────────────────────────────────
+  Service              Image                  Port    Description
+  ─────────────────────────────────────────────────────────────────────
+  retailiq-frontend    node:18-alpine         3000    React.js (Nginx served)
+  retailiq-api         openjdk:17-slim        8080    Spring Boot REST API
+  retailiq-analytics   python:3.11-slim       8000    FastAPI microservice
+  retailiq-db          mysql:8.0            5432    MySQL database
+  retailiq-nginx       nginx:alpine           80/443  Reverse proxy + SSL
+
+ENVIRONMENT VARIABLES (.env — never committed to Git)
+──────────────────────────────────────────────────────
+  DB_HOST=retailiq-db
+  DB_PORT=3306
+  DB_NAME=retailiq
+  DB_USER=retailiq_user
+  DB_PASSWORD=<strong_password>
+  DB_ROOT_PASSWORD=<root_password>
+  MYSQL_DATABASE=retailiq
+  JWT_SECRET=<256_bit_random_secret>
+  JWT_EXPIRY_HOURS=24
+  ANALYTICS_SERVICE_URL=http://retailiq-analytics:8000
+  POWERBI_CLIENT_ID=<power_bi_app_id>
+  POWERBI_CLIENT_SECRET=<power_bi_secret>
+
+GITHUB ACTIONS CI/CD PIPELINE (.github/workflows/deploy.yml)
+─────────────────────────────────────────────────────────────
+  Trigger           : Push to main branch or pull request merge
+
+  Step 1: Checkout  → actions/checkout@v4
+  Step 2: Java Test → mvn test (JUnit + Mockito)
+  Step 3: Python Test → pytest analytics/ --cov
+  Step 4: Build API → mvn package -DskipTests → creates .jar
+  Step 5: Build Images → docker build for api, analytics, frontend
+  Step 6: Push Images → docker push to GitHub Container Registry
+  Step 7: Deploy → SSH to server, docker-compose pull + up -d
+  Step 8: Smoke Test → curl health check endpoints
+  Step 9: Notify → Slack/email notification on success or failure
+
+
+════════════════════════════════════════════════════════════════════════════════
+  SECTION 15 — TESTING STRATEGY
+════════════════════════════════════════════════════════════════════════════════
+
+  Test Type        Framework                Target    What Is Tested
+  ─────────────────────────────────────────────────────────────────────────────
+  Unit Tests       JUnit 5 + Mockito        80%+      Service layer business logic
+  Integration Tests Spring Boot Test        70%+      API endpoints, DB queries
+  Repository Tests Spring Data JPA Test     90%+      JPA queries and mappings
+  Frontend Tests   Jest + React Test Library 70%+     Component render, user events
+  Python Tests     Pytest + pytest-cov      80%+      ETL pipeline, RFM, forecasting
+  Performance Tests Apache JMeter          N/A       API load testing (100 VUsers)
+  Security Tests   OWASP ZAP               N/A       Vulnerability scanning
+
+KEY TEST CASES
+──────────────
+  Spring Boot:
+  - AuthControllerTest: login success, login failure, JWT validation
+  - AnalyticsServiceTest: KPI calculations, date range filtering
+  - DataUploadServiceTest: valid CSV, invalid CSV, duplicate detection
+  - CustomerServiceTest: CRUD operations, segment assignment
+
+  Python (Pytest):
+  - test_etl_clean_csv: Tests cleaning of messy CSV data
+  - test_rfm_scoring: Verifies RFM quintile calculation
+  - test_forecast_accuracy: Checks model achieves R² > 0.70 on test data
+  - test_duplicate_detection: Ensures duplicate order_ids are rejected
+
+  React (Jest):
+  - KPICard.test.tsx: Renders correct value and trend indicator
+  - DataTable.test.tsx: Sorting, pagination, row selection
+  - LoginForm.test.tsx: Form validation, API call on submit
+
+
+════════════════════════════════════════════════════════════════════════════════
+  SECTION 16 — PROJECT TIMELINE
+════════════════════════════════════════════════════════════════════════════════
+
+  Phase   Name                      Duration  Key Deliverables
+  ────────────────────────────────────────────────────────────────────────────
+  1       Planning & Design         2 weeks   BRD, system architecture, DB schema,
+                                              Figma wireframes, ER diagram
+
+  2       Database & Backend Core   3 weeks   MySQL 8 schema + Flyway migrations,
+                                              Spring Boot project structure,
+                                              CRUD APIs, JWT authentication,
+                                              Swagger documentation
+
+  3       Python Analytics Engine   3 weeks   FastAPI project setup,
+                                              ETL pipeline (upload → clean → load),
+                                              RFM segmentation model,
+                                              Sales forecasting with Scikit-learn
+
+  4       React Frontend            3 weeks   shadcn/ui component setup,
+                                              Dashboard with KPI cards and charts,
+                                              Products and Customers pages,
+                                              Data upload interface
+
+  5       Power BI Integration      2 weeks   Power BI workspace setup,
+                                              Embedded dashboard in React,
+                                              PDF export, report scheduling
+
+  6       Testing & QA              2 weeks   JUnit tests, Pytest tests,
+                                              React component tests,
+                                              Performance testing, bug fixes
+
+  7       Deployment & Docs         1 week    Docker Compose configuration,
+                                              GitHub Actions CI/CD pipeline,
+                                              Final documentation, README
+
+  TOTAL                             16 weeks  (4 months)
+
+RECOMMENDED DATASET
+────────────────────
+  Name    : Brazilian E-Commerce Public Dataset by Olist
+  Source  : https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce
+  Size    : 100,000+ orders, 9 related tables
+  Why     : Real-world, multi-table, enough volume to demonstrate analytics
+
+
+════════════════════════════════════════════════════════════════════════════════
+  SECTION 17 — CAREER RELEVANCE & CV GUIDE
+════════════════════════════════════════════════════════════════════════════════
+
+JOB REQUIREMENT → RETAILIQ FEATURE MAPPING
+───────────────────────────────────────────
+  Job Requirement                     RetailIQ Feature                    Role
+  ─────────────────────────────────────────────────────────────────────────────
+  SQL querying & data modeling        MySQL schema + complex queries  BA+DA
+  Python data manipulation            Pandas ETL, RFM, forecasting         DA
+  Dashboard creation                  React.js + shadcn/ui + Recharts      BA+DA
+  Power BI / Tableau                  Embedded Power BI reports            BA+DA
+  Requirements analysis               BRD, use cases, acceptance criteria  BA
+  REST API integration                Spring Boot API + Swagger docs        DA
+  Machine learning basics             Scikit-learn regression model        DA
+  Business communication              Auto-generated insight reports       BA
+  Agile / project management          GitHub Issues, milestone tracking    BA+DA
+  Version control                     Git feature branches, PRs            BA+DA
+  ETL / data pipelines                Python FastAPI ETL pipeline          DA
+  Data visualization                  Charts, heatmaps, KPI cards          BA+DA
+
+CV BULLET POINTS (ready to copy)
+──────────────────────────────────
+  • Built a full-stack e-commerce analytics platform using Java Spring Boot,
+    React.js (shadcn/ui), and MySQL 8 (InnoDB), simulating real-world BA/DA workflows
+
+  • Developed Python ETL pipelines with Pandas processing 100K+ records,
+    including automated data validation, cleaning, and error reporting
+
+  • Implemented RFM customer segmentation model classifying customers into
+    5 behavioral segments to support targeted marketing campaigns
+
+  • Designed and deployed interactive Power BI dashboards tracking 8
+    business KPIs with real-time data from REST API
+
+  • Built ML-based sales forecasting model using RandomForestRegressor
+    achieving R² > 0.84 on 30-day revenue predictions
+
+  • Designed normalized MySQL database schema (3NF) with 10 tables,
+    covering customers, orders, products, inventory, and audit trails
+
+  • Containerized microservices architecture using Docker with automated
+    CI/CD pipeline via GitHub Actions for continuous deployment
+
+  • Implemented JWT-secured REST API with Spring Security, role-based
+    access control (Admin/Analyst/Viewer), and comprehensive audit logging
+
+
+════════════════════════════════════════════════════════════════════════════════
+  SECTION 18 — GLOSSARY
+════════════════════════════════════════════════════════════════════════════════
+
+  Term      Definition
+  ─────────────────────────────────────────────────────────────────────────────
+  API       Application Programming Interface — rules for software communication
+  AOV       Average Order Value — Total Revenue / Total Orders
+  BA        Business Analyst — translates business needs to requirements
+  BI        Business Intelligence — analytics and reporting technology
+  BPMN      Business Process Model and Notation — process diagram standard
+  BRD       Business Requirements Document — formal requirements specification
+  CI/CD     Continuous Integration/Deployment — automated build & deploy pipeline
+  CLV       Customer Lifetime Value — predicted total revenue from a customer
+  COGS      Cost of Goods Sold — direct cost of products sold
+  DA        Data Analyst — interprets data and generates insights
+  ETL       Extract, Transform, Load — data pipeline from source to destination
+  JPA       Java Persistence API — Java ORM specification
+  JWT       JSON Web Token — compact token for stateless authentication
+  KPI       Key Performance Indicator — measurable business metric
+  MAE       Mean Absolute Error — ML model accuracy metric
+  MoM       Month-over-Month — period comparison metric
+  ORM       Object-Relational Mapping — DB to object conversion
+  RFM       Recency, Frequency, Monetary — customer segmentation model
+  RMSE      Root Mean Square Error — ML model evaluation metric
+  RBAC      Role-Based Access Control — permission system by user role
+  REST      Representational State Transfer — API architectural style
+  SPA       Single Page Application — web app with dynamic content updates
+  3NF       Third Normal Form — database normalization standard
+  InnoDB    MySQL storage engine with ACID compliance and foreign key support
+  JDBC      Java Database Connectivity — Java API for database access
+  JPA       Java Persistence API — Java ORM standard
+  Flyway    Database migration versioning tool for schema changes
+================================================================================
+  END OF DOCUMENT — RetailIQ System Guide v1.0 (MySQL Edition)
+  SLIIT | Information Systems Engineering | March 2026
+================================================================================

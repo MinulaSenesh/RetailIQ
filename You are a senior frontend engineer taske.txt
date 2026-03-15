@@ -1,0 +1,224 @@
+You are a senior frontend engineer tasked with enhancing the RetailIQ 
+customer-facing shop UI to Amazon/industry level quality.
+
+## UNIQUE BRAND NAME FOR CUSTOMER SHOP
+The customer-facing shop must be rebranded with this unique name:
+
+★ "ZYVORA" ★
+
+Tagline: "Everything You Need, Delivered Smart"
+Sub-brand line: "Powered by RetailIQ"
+Logo text style: Bold, modern — "ZY" in red #DC2626, "VORA" in black #0A0A0A
+The name Zyvora does not exist anywhere in the world currently — it is 
+completely original. Use it consistently across all customer pages, 
+the navbar, footer, page titles, and browser tab title.
+Do NOT use "RetailIQ Shop" anywhere on customer-facing pages.
+The admin dashboard still shows "RetailIQ" — do not touch that.
+
+## COLOR PALETTE — Strict
+Primary:       #DC2626  (red)        — buttons, badges, accents, links
+Primary Dark:  #B91C1C  (dark red)   — button hover states
+Background:    #FFFFFF  (white)      — page background
+Surface:       #F9FAFB  (light gray) — cards, input backgrounds
+Border:        #E5E7EB  (gray-200)   — card borders, dividers
+Text Primary:  #0A0A0A  (near black) — headings, product names
+Text Secondary:#6B7280  (gray-500)   — SKU codes, subtitles
+Text Muted:    #9CA3AF  (gray-400)   — hints, placeholders
+Navbar BG:     #0A0A0A  (black)      — top navbar background
+Footer BG:     #0A0A0A  (black)      — footer background
+Navbar Text:   #FFFFFF  (white)      — all navbar text and icons
+Announcement:  gradient from #DC2626 to #7F1D1D (red gradient)
+Success:       #16A34A  (green)      — "In Stock" label
+Error:         #DC2626  (red)        — "Out of Stock" label
+
+Do NOT use purple, indigo, blue, or violet anywhere on customer pages.
+
+## PROJECT CONTEXT
+- Frontend: React + Vite at D:\RetailQ\retailiq-frontend
+- Backend API: Java Spring Boot at http://localhost:8080
+- Customer shop runs at http://localhost:3002
+- Currency: LKR (Sri Lankan Rupees)
+- DO NOT touch anything in retailiq-analytics or retailiq-api
+- DO NOT touch admin dashboard pages (Dashboard, Analytics, Products admin, 
+  Customers admin, Data Upload, Audit Log)
+- ONLY modify customer-facing pages
+
+## CURRENT CUSTOMER PAGES TO ENHANCE
+1. Home/Shop page (product listings with category filters)
+2. Product detail page
+3. Cart page
+4. Profile/Settings page
+5. Order history page (if exists)
+6. Checkout page (if exists)
+
+## DESIGN REQUIREMENTS — Amazon-level quality
+
+### Overall Style
+- Clean white background with light gray (#F9FAFB) card surfaces
+- Professional typography — use Inter or Plus Jakarta Sans font
+- Consistent spacing and padding throughout
+- Fully responsive — mobile, tablet, desktop
+- Smooth hover transitions and micro-animations (0.2s ease)
+- No placeholder cart icons for product images — use proper image handling 
+  with graceful fallback
+
+### Header / Navbar
+- Sticky top navbar — solid black #0A0A0A background
+- Zyvora logo on left — "ZY" in red #DC2626, "VORA" in white #FFFFFF
+- Search bar in center — white background, red focus ring border
+- Right side: Cart icon with red badge showing item count, 
+  user avatar + name in white, dropdown on click
+- Dropdown menu (white bg, black text): My Orders, Profile Settings, Logout
+- Logout option in red text
+- Announcement bar ABOVE navbar:
+  "⚡ FREE SHIPPING on all orders over LKR 5,000 — Limited time offer!"
+  Background: gradient from #DC2626 to #7F1D1D, white text, centered
+
+### Home Page
+- Replace "Design is Everything" hero with Zyvora hero banner:
+  - Background: black #0A0A0A with subtle red glow/accent shapes
+  - Headline: "Shop Smarter with Zyvora" — white, bold, large
+  - Subtext: "Premium products at unbeatable prices, delivered to your door"
+    — gray #9CA3AF
+  - CTA button "Explore Now" — red #DC2626, white text, rounded, 
+    scrolls to product grid
+  - Optional: floating geometric shapes in dark red for visual depth
+- Category filter pills below hero:
+  - Active pill: black background, white text
+  - Inactive pill: white background, black border, black text
+  - Hover: red border, red text
+- Product grid: 4 columns desktop, 2 tablet, 1 mobile
+- Each product card must have:
+  - White background, light gray border, subtle shadow
+  - Product image area centered (white bg) with zoom scale on hover
+  - Category badge top-left — black background, white text, small rounded
+  - Product name bold black, 2 lines max with ellipsis overflow
+  - SKU code in small gray #6B7280 text below name
+  - Star rating (gold stars) with review count in gray
+  - Price in large bold black text (LKR format with comma separators)
+  - Stock status — green "✓ In Stock" / red "✗ Out of Stock"
+  - "Add to Cart" button — full width, red #DC2626, white text,
+    slides up from bottom on card hover with 0.2s ease animation
+- Above grid: "Showing X products" in gray + sort dropdown right-aligned
+  Sort options: Featured, Price: Low to High, Price: High to Low, Top Rated
+  Dropdown styled with black border, red accent on focus
+
+### Product Detail Page (create if not exists)
+- White page, two column layout: image left (50%), details right (50%)
+- Large product image, white bg, centered, border radius
+- Thumbnail strip below main image if multiple images
+- Right column:
+  - Category badge (black bg, white text)
+  - Product name — large, bold, black
+  - SKU — small gray
+  - Star rating row
+  - Price — very large, bold, black (LKR format)
+  - Stock status badge
+  - Divider line
+  - Quantity selector: minus button / number input / plus button
+    Buttons: black bg, white text, rounded
+  - "Add to Cart" button — full width, red, white text, large
+  - "Buy Now" button — full width, black, white text, large
+  - Divider
+  - Description section below buttons
+- Related products section at bottom of page (same card style as grid)
+
+### Cart Page
+- White background, two column layout:
+  Left 70%: cart item list
+  Right 30%: order summary card (sticky)
+- Each cart item:
+  - Product image (small, rounded border)
+  - Product name bold black
+  - Price in black
+  - Quantity controls: black outlined minus/plus buttons
+  - Remove button: red text "Remove"
+  - Divider between items
+- Order summary card:
+  - White bg, black border, rounded
+  - "Order Summary" heading bold black
+  - Subtotal row
+  - Shipping row — "FREE" in green if over LKR 5,000, else show amount
+  - Bold total row with divider above
+  - "Proceed to Checkout" button — full width, red, white text, large
+  - "Continue Shopping" link — red text, centered below button
+- Empty cart state:
+  - Centered on page
+  - Large shopping bag icon in red
+  - "Your Zyvora cart is empty" — bold black
+  - "Looks like you haven't added anything yet" — gray subtext
+  - "Start Shopping" button — red
+
+### Profile Page
+- White page, max-width centered container
+- Page title: "My Zyvora Account" — bold black
+- Card sections with white bg, black border, rounded corners:
+  Card 1 — Avatar:
+    - Large circular avatar with red ring border
+    - Camera icon overlay for upload
+    - Name bold, "CUSTOMER" role badge in black bg white text
+  Card 2 — Personal Information:
+    - First Name, Last Name side by side
+    - Email Address full width
+    - New Password optional field
+    - All inputs: white bg, black border, red focus ring
+  Card 3 — Contact Details:
+    - Phone Number, Address side by side
+    - Postal Code
+- "Save All Changes" button — red, white text, bottom right
+
+### Footer
+- Black background #0A0A0A, white text
+- 4 columns:
+  Col 1 — "ZY" red + "VORA" white logo
+           Tagline: "Everything You Need, Delivered Smart" gray text
+           "Powered by RetailIQ" small muted text
+           Social icons row: Twitter/X, Instagram, Facebook — white, 
+           hover red, using lucide-react
+  Col 2 — "SHOP" heading in red
+           All Products, Electronics, Clothing, Home & Garden, Food & Beverage
+  Col 3 — "SUPPORT" heading in red
+           Help Center, Shipping Info, Returns, Track Order
+  Col 4 — "COMPANY" heading in red
+           About Us, Contact, Careers, Privacy Policy
+- All footer links: gray text, hover white
+- Divider line above bottom bar
+- Bottom bar: "© 2026 Zyvora. Powered by RetailIQ Inc. All rights reserved."
+  centered, small gray text
+
+## TECHNICAL REQUIREMENTS
+- All API calls must remain unchanged — same endpoints, same auth headers
+- Keep all existing React state management and hooks
+- Keep JWT token handling exactly as is
+- Keep all existing route paths unchanged
+- Use Tailwind CSS utility classes only (no custom CSS files unless needed)
+- Use lucide-react for icons (already installed)
+- No new npm packages unless absolutely necessary
+- Preserve all existing functionality — cart, auth, profile save, etc.
+
+## WHAT NOT TO CHANGE
+- Any file inside admin-related components/pages
+- Any API service files (apiService.js, authService.js, etc.)
+- Any context providers (AuthContext, CartContext, etc.)
+- Router configuration — keep all existing routes
+- Any environment variables or config files
+
+## EXECUTION ORDER
+1. First run: find . -type f -name "*.jsx" -o -name "*.tsx" | head -50
+   to understand the file structure
+2. Identify which files are customer-facing vs admin-facing
+3. Enhance one page at a time in this order:
+   Navbar → Home → ProductCard → Cart → Profile → Footer
+4. After each file change, confirm what was changed
+
+## QUALITY CHECK BEFORE FINISHING
+- All pages render without console errors
+- Cart add/remove still works
+- Login/logout still works
+- Profile save still works
+- Mobile responsive on 375px width
+- No broken imports
+- "Zyvora" branding consistent across all customer pages
+- Black navbar, red accents, white content throughout
+- Admin dashboard still shows "RetailIQ" unchanged
+- Zero purple, indigo, or blue on any customer page
