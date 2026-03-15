@@ -1,6 +1,7 @@
 package com.retailiq.api.repository;
 
 import com.retailiq.api.entity.Order;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -9,9 +10,15 @@ import org.springframework.stereotype.Repository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
+
+    @Override
+    @EntityGraph(attributePaths = {"customer"})
+    Page<Order> findAll(Pageable pageable);
 
     @Query(value = "SELECT o FROM Order o WHERE o.customer.user.userId = :userId ORDER BY o.orderDate DESC")
     List<Order> findMyOrders(@Param("userId") Long userId);

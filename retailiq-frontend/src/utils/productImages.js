@@ -87,7 +87,10 @@ const CATEGORY_IMAGES = {
   ],
 };
 
-export function getProductImage(category, productId) {
+export function getProductImage(category, productId, product) {
+  if (product && product.imageUrl) {
+    return product.imageUrl;
+  }
   const images = CATEGORY_IMAGES[category] || CATEGORY_IMAGES['Default'];
   const index = (productId || 0) % images.length;
   return images[index];

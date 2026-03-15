@@ -22,9 +22,9 @@ export function LoginForm({ onSubmit, error, isSubmitting }: LoginFormProps) {
 
   return (
     <div className="w-full max-w-sm px-12">
-      {/* Icon at top */}
-      <div className="w-14 h-14 bg-red-600 rounded-2xl flex items-center justify-center mx-auto shadow-lg shadow-red-900/50">
-        <ShoppingBag size={26} className="text-white" />
+      {/* Refined Luxury Logo */}
+      <div className="w-16 h-16 mb-4 flex items-center justify-center mx-auto overflow-hidden rounded-2xl shadow-xl shadow-red-600/20">
+        <img src="/zyvora-logo.png" alt="Zyvora Logo" className="w-full h-full object-cover" />
       </div>
 
       <div className="text-center mt-6">

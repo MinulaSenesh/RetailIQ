@@ -9,6 +9,7 @@ public class OrderCheckoutRequest {
     private Long customerId;
     private List<Item> items;
     private BigDecimal totalAmount;
+    private String paymentMethod;
 
     @Data
     public static class Item {

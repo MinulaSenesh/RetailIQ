@@ -186,7 +186,7 @@ export default function StorefrontPage() {
                                 {/* Product Image Area */}
                                 <div className="relative w-full h-32 sm:h-48 bg-gray-50 overflow-hidden rounded-t-lg">
                                     <img
-                                        src={getProductImage(product.category?.name || 'Default', product.productId)}
+                                        src={getProductImage(product.category?.name || 'Default', product.productId, product)}
                                         alt={product.productName}
                                         className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                                         onError={(e: any) => {

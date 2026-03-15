@@ -46,7 +46,7 @@ export default function LoginPage() {
                 <div className="absolute bottom-1/4 right-1/3 w-4 h-4 bg-red-500 rounded-full opacity-20 animate-float" />
 
                 {/* Main brand content */}
-                <div className="relative z-10 text-center">
+                <div className="relative z-10 text-center flex flex-col items-center">
                     <h1 className="text-8xl font-black tracking-tighter leading-none">
                         <span className="text-red-600">ZY</span>
                         <span className="text-white">VORA</span>

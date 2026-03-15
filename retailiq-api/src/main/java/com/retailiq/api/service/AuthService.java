@@ -109,7 +109,10 @@ public class AuthService {
                 String accessToken = jwtTokenProvider.generateAccessToken(userDetails);
                 String refreshToken = jwtTokenProvider.generateRefreshToken(userDetails);
 
-                Customer customer = customerRepository.findByUserUserId(user.getUserId()).orElse(null);
+                                Customer customer = customerRepository.findAll().stream()
+                                .filter(c -> c.getUser() != null && c.getUser().getUserId().equals(user.getUserId()))
+                                .findFirst().orElse(null);
+
 
                 return LoginResponse.builder()
                                 .accessToken(accessToken)

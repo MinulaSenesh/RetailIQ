@@ -1,7 +1,8 @@
 // src/App.tsx
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
+import { useEffect } from "react";
 import AppLayout from "@/components/layout/AppLayout";
 import StorefrontLayout from "@/components/layout/StorefrontLayout";
 import LoginPage from "@/pages/LoginPage";
@@ -17,6 +18,7 @@ import UploadPage from "@/pages/UploadPage";
 import AuditLogPage from "@/pages/AuditLogPage";
 import ProfilePage from "@/pages/ProfilePage";
 import ProductDetailPage from "@/pages/ProductDetailPage";
+import AdminOrdersPage from "@/pages/AdminOrdersPage";
 import OrdersPage from "@/pages/OrdersPage";
 import NotFoundPage from "@/pages/NotFoundPage";
 
@@ -42,11 +44,47 @@ function CustomerRoute({ children }: { children: React.ReactNode }) {
     return <>{children}</>;
 }
 
+/** Manages branding (Title & Favicon) dynamically */
+function BrandingManager() {
+    const location = useLocation();
+    const { user } = useAuth();
+    
+    useEffect(() => {
+        const isShop = location.pathname.startsWith("/shop");
+        const isLogin = location.pathname === "/login" || location.pathname === "/register";
+        
+        // Update Title
+        if (isShop) {
+            document.title = "Zyvora — Premium Shopping";
+        } else if (isLogin) {
+            document.title = "Zyvora — Login";
+        } else {
+            document.title = "RetailIQ — Analytics Dashboard";
+        }
+        
+        // Update Favicon
+        const favicon = document.querySelector("link[rel='icon']") as HTMLLinkElement;
+        if (favicon) {
+            if (isShop || isLogin) {
+                favicon.href = "/zyvora-logo.png";
+                favicon.type = "image/png";
+            } else {
+                // Use professional RetailIQ logo icon
+                favicon.href = "/retailiq-logo.png";
+                favicon.type = "image/png";
+            }
+        }
+    }, [location.pathname]);
+    
+    return null;
+}
+
 export default function App() {
     return (
         <AuthProvider>
             <CartProvider>
                 <BrowserRouter>
+                    <BrandingManager />
                     <Routes>
                         <Route path="/login" element={<LoginPage />} />
                         <Route path="/register" element={<RegisterPage />} />
@@ -92,7 +130,7 @@ export default function App() {
                             <Route path="upload" element={<UploadPage />} />
                             <Route path="audit" element={<AuditLogPage />} />
                             <Route path="profile" element={<ProfilePage />} />
-            <Route path="orders" element={<OrdersPage />} />
+                            <Route path="orders" element={<AdminOrdersPage />} />
                         </Route>
 
                         <Route path="*" element={<NotFoundPage />} />

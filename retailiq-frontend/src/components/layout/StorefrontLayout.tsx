@@ -128,10 +128,12 @@ export default function StorefrontLayout() {
                 )}
 
                 <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
-                    {/* Zyvora Logo */}
-                    <Link to="/shop" className="flex items-center gap-1 group shrink-0">
-                        <span className="text-2xl font-black tracking-tighter text-[#DC2626]">ZY</span>
-                        <span className="text-2xl font-black tracking-tighter text-white">VORA</span>
+                    <Link to="/shop" className="flex items-center gap-2 group shrink-0">
+                        <img src="/zyvora-logo.png" alt="Zyvora Logo" className="w-8 h-8 rounded-lg shadow-lg group-hover:scale-110 transition-transform" />
+                        <div className="flex items-center gap-0.5">
+                            <span className="text-2xl font-black tracking-tighter text-[#DC2626]">ZY</span>
+                            <span className="text-2xl font-black tracking-tighter text-white">VORA</span>
+                        </div>
                     </Link>
 
                     {/* Search Bar - Center (desktop only) */}
@@ -262,7 +264,7 @@ export default function StorefrontLayout() {
                             </div>
                             <div>
                                 <p className="text-gray-400 text-sm mt-3 leading-relaxed">Everything You Need, Delivered Smart.</p>
-                                <p className="text-gray-600 text-xs font-bold tracking-widest mt-2 uppercase">POWERED BY RETAILIQ</p>
+                                <p className="text-gray-600 text-xs font-bold tracking-widest mt-2 uppercase">PREMIUM SHOPPING EXPERIENCE</p>
                             </div>
                             <div className="flex items-center gap-4">
                                 <Twitter className="w-5 h-5 text-gray-500 hover:text-red-500 transition-colors cursor-pointer" />
@@ -308,7 +310,7 @@ export default function StorefrontLayout() {
                     
                     <div className="border-t border-white/5 mt-16 pt-8">
                         <p className="text-gray-600 text-xs text-center">
-                            © 2026 Zyvora · Powered by RetailIQ · All rights reserved.
+                            © 2026 Zyvora · All rights reserved.
                         </p>
                     </div>
                 </div>

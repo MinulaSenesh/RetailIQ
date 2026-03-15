@@ -25,8 +25,10 @@ export function formatRelativeDate(dateStr: string): string {
 }
 
 export function formatPercent(value: number, digits = 1): string {
-    const sign = value > 0 ? "+" : "";
-    return `${sign}${value.toFixed(digits)}%`;
+    const absValue = Math.abs(value);
+    if (absValue < 0.1) return "0.0%";
+    const sign = value > 0 ? "+" : "-";
+    return `${sign}${absValue.toFixed(digits)}%`;
 }
 
 export function getSegmentColor(segment: string): string {

@@ -50,6 +50,17 @@ public class Product {
     @Column(name = "is_active")
     private boolean active = true;
 
+    @Column(name = "image_url")
+    private String imageUrl;
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
     @CreationTimestamp
     @Column(name = "created_at")
     private LocalDateTime createdAt;

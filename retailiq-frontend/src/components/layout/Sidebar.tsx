@@ -1,6 +1,6 @@
 // src/components/layout/Sidebar.tsx
 import { NavLink, useNavigate, Link } from "react-router-dom";
-import { LayoutDashboard, BarChart3, Package, Users, Upload, LogOut, Moon, Sun, FileClock } from "lucide-react";
+import { LayoutDashboard, BarChart3, Package, Users, Upload, LogOut, Moon, Sun, FileClock, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
@@ -14,6 +14,7 @@ const BASE_NAV_ITEMS = [
     { to: "/analytics", label: "Analytics", Icon: BarChart3 },
     { to: "/products", label: "Products", Icon: Package },
     { to: "/customers", label: "Customers", Icon: Users },
+    { to: "/orders", label: "Orders", Icon: ShoppingBag },
     { to: "/upload", label: "Data Upload", Icon: Upload },
 ];
 
@@ -41,8 +42,8 @@ export default function Sidebar() {
         <aside className="flex flex-col w-64 h-full border-r bg-card shrink-0">
             {/* Brand */}
             <div className="flex items-center gap-2 px-6 py-5 border-b">
-                <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary">
-                    <BarChart3 className="w-5 h-5 text-primary-foreground" />
+                <div className="flex items-center justify-center w-8 h-8 rounded-lg overflow-hidden shadow-sm bg-white">
+                    <img src="/retailiq-logo.png" alt="RetailIQ Logo" className="w-full h-full object-cover scale-[1.3] transform-gpu" />
                 </div>
                 <span className="text-lg font-bold tracking-tight">RetailIQ</span>
             </div>

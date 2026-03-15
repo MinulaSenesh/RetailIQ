@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { formatCurrency } from "@/lib/formatters";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Trash2, ShoppingBag, ArrowLeft, ArrowRight, CheckCircle2, Loader2, Shield, Truck } from "lucide-react";
+import { Trash2, ShoppingBag, ArrowLeft, ArrowRight, CheckCircle2, Loader2, Shield, Truck, CreditCard, Banknote } from "lucide-react";
 import { useState } from "react";
 import api from "@/lib/api";
 import { getProductImage } from "@/utils/productImages";
@@ -15,11 +15,11 @@ export default function CheckoutPage() {
     const navigate = useNavigate();
     const [isProcessing, setIsProcessing] = useState(false);
     const [orderComplete, setOrderComplete] = useState(false);
+    const [paymentMethod, setPaymentMethod] = useState("CARD");
 
     const handleCheckout = async () => {
         setIsProcessing(true);
         try {
-            // This endpoint will be created in Phase 4
             const orderPayload = {
                 customerId: user?.userId,
                 items: items.map(i => ({
@@ -27,10 +27,19 @@ export default function CheckoutPage() {
                     quantity: i.quantity,
                     price: i.product.unitPrice
                 })),
-                totalAmount
+                totalAmount,
+                paymentMethod
             };
 
-            await api.post("/orders/checkout", orderPayload);
+            const response = await api.post("/orders/checkout", orderPayload);
+            const order = response.data.data;
+
+            // Visualization Mode: Skip real payment gateway and show success
+            console.log(`SIMULATION: Order #${order.orderId} created with method: ${paymentMethod}`);
+            
+            // Wait a moment to simulate "Processing"
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            
             clearCart();
             setOrderComplete(true);
         } catch (error: any) {
@@ -41,7 +50,39 @@ export default function CheckoutPage() {
         }
     };
 
+    const launchPayHere = (params: any) => {
+        // PayHere Sandbox Checkout
+        const form = document.createElement('form');
+        form.setAttribute('method', 'post');
+        form.setAttribute('action', 'https://sandbox.payhere.lk/pay/checkout');
+
+        // Sandbox uses these params
+        const fields: any = {
+            ...params,
+            return_url: window.location.origin + "/payment-success",
+            cancel_url: window.location.origin + "/checkout",
+            notify_url: "https://retailiq-api.onrender.com/api/v1/payments/payhere/notify" // Place-holder for PayHere to accept
+        };
+
+        for (const key in fields) {
+            const input = document.createElement('input');
+            input.setAttribute('type', 'hidden');
+            input.setAttribute('name', key);
+            input.setAttribute('value', fields[key]);
+            form.appendChild(input);
+        }
+
+        document.body.appendChild(form);
+        form.submit();
+    };
+
     if (orderComplete) {
+        const methodNames: any = {
+            "CARD": "Credit / Debit Card",
+            "EZCASH": "eZ Cash / mCash",
+            "COD": "Cash on Delivery"
+        };
+        
         return (
             <div className="flex flex-col items-center justify-center min-h-[70vh] space-y-8 text-center animate-in fade-in zoom-in duration-700">
                 <div className="w-28 h-28 bg-[#16A34A]/10 rounded-full flex items-center justify-center shadow-inner">
@@ -49,6 +90,10 @@ export default function CheckoutPage() {
                 </div>
                 <div className="space-y-4">
                     <h1 className="text-4xl font-black tracking-tighter text-[#0A0A0A]">Order Confirmed!</h1>
+                    <div className="p-4 bg-[#F9FAFB] border-2 border-[#E5E7EB] rounded-2xl inline-block mb-2">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Payment Method</p>
+                        <p className="text-[#0A0A0A] font-black uppercase tracking-tighter">{methodNames[paymentMethod] || paymentMethod}</p>
+                    </div>
                     <p className="text-gray-500 text-lg max-w-md mx-auto">
                         Thank you for choosing <span className="text-[#DC2626] font-bold">Zyvora</span>. We've received your order and are preparing it for smart delivery.
                     </p>
@@ -105,7 +150,7 @@ export default function CheckoutPage() {
                                 {/* Product Image */}
                                 <div className="w-24 h-24 bg-[#F9FAFB] rounded-xl flex-shrink-0 overflow-hidden border border-[#E5E7EB]">
                                     <img
-                                        src={getProductImage(item.product.category?.name || 'Default', item.product.productId)}
+                                        src={getProductImage(item.product.category?.name || 'Default', item.product.productId, item.product)}
                                         alt={item.product.productName}
                                         className="w-full h-full object-cover"
                                         onError={(e: any) => { e.target.style.display = 'none'; }}
@@ -170,6 +215,50 @@ export default function CheckoutPage() {
                                 <div className="flex justify-between items-center text-gray-500">
                                     <span>Tax estimate</span>
                                     <span className="text-[#0A0A0A]">LKR 0.00</span>
+                                </div>
+
+                                <div className="border-t border-[#E5E7EB] pt-6 space-y-4">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Select Payment Method</p>
+                                    <div className="grid grid-cols-1 gap-3">
+                                        <button 
+                                            onClick={() => setPaymentMethod("CARD")}
+                                            className={`p-4 rounded-xl border-2 transition-all flex items-center gap-4 ${paymentMethod === 'CARD' ? 'border-[#DC2626] bg-[#DC2626]/5' : 'border-[#E5E7EB] bg-white hover:border-gray-300'}`}
+                                        >
+                                            <div className={`p-2 rounded-full ${paymentMethod === 'CARD' ? 'bg-[#DC2626] text-white' : 'bg-gray-100 text-gray-500'}`}>
+                                                <CreditCard className="w-5 h-5" />
+                                            </div>
+                                            <div className="text-left">
+                                                <p className={`text-xs font-black uppercase tracking-tighter ${paymentMethod === 'CARD' ? 'text-[#DC2626]' : 'text-[#0A0A0A]'}`}>Credit / Debit Card</p>
+                                                <p className="text-[10px] text-gray-500 font-bold uppercase">Visa, Mastercard, AMEX</p>
+                                            </div>
+                                        </button>
+
+                                        <button 
+                                            onClick={() => setPaymentMethod("EZCASH")}
+                                            className={`p-4 rounded-xl border-2 transition-all flex items-center gap-4 ${paymentMethod === 'EZCASH' ? 'border-[#DC2626] bg-[#DC2626]/5' : 'border-[#E5E7EB] bg-white hover:border-gray-300'}`}
+                                        >
+                                            <div className={`p-2 rounded-full ${paymentMethod === 'EZCASH' ? 'bg-[#DC2626] text-white' : 'bg-gray-100 text-gray-500'}`}>
+                                                <ShoppingBag className="w-5 h-5" />
+                                            </div>
+                                            <div className="text-left">
+                                                <p className={`text-xs font-black uppercase tracking-tighter ${paymentMethod === 'EZCASH' ? 'text-[#DC2626]' : 'text-[#0A0A0A]'}`}>eZ Cash / mCash</p>
+                                                <p className="text-[10px] text-gray-500 font-bold uppercase">Mobile Wallet Checkout</p>
+                                            </div>
+                                        </button>
+
+                                        <button 
+                                            onClick={() => setPaymentMethod("COD")}
+                                            className={`p-4 rounded-xl border-2 transition-all flex items-center gap-4 ${paymentMethod === 'COD' ? 'border-[#0A0A0A] bg-[#0A0A0A]/5' : 'border-[#E5E7EB] bg-white hover:border-gray-300'}`}
+                                        >
+                                            <div className={`p-2 rounded-full ${paymentMethod === 'COD' ? 'bg-[#0A0A0A] text-white' : 'bg-gray-100 text-gray-500'}`}>
+                                                <Banknote className="w-5 h-5" />
+                                            </div>
+                                            <div className="text-left">
+                                                <p className={`text-xs font-black uppercase tracking-tighter ${paymentMethod === 'COD' ? 'text-[#0A0A0A]' : 'text-[#0A0A0A]'}`}>Cash on Delivery</p>
+                                                <p className="text-[10px] text-gray-500 font-bold uppercase">Pay when you receive</p>
+                                            </div>
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <div className="border-t border-[#E5E7EB] pt-6 flex flex-col gap-1">

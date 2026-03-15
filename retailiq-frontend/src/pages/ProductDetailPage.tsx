@@ -162,7 +162,8 @@ export default function ProductDetailPage() {
                 <img
                   src={getProductImage(
                     product.category?.name || 'Default',
-                    product.productId
+                    product.productId,
+                    product
                   )}
                   alt={product.productName}
                   className="w-full h-full object-cover"
@@ -384,7 +385,8 @@ export default function ProductDetailPage() {
                     <img
                       src={getProductImage(
                         related.category?.name || 'Default',
-                        related.productId
+                        related.productId,
+                        related
                       )}
                       alt={related.productName}
                       className="w-full h-full object-cover

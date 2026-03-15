@@ -38,7 +38,10 @@ public class AnalyticsService {
         BigDecimal prevRevenue = orderRepository.sumRevenueBetween(prevStart, prevEnd);
         long orders = orderRepository.countOrdersBetween(start, end);
         long prevOrders = orderRepository.countOrdersBetween(prevStart, prevEnd);
-        long customers = customerRepository.countActiveCustomers();
+        
+        // Fix: Use temporal counts for growth
+        long customers = customerRepository.countActiveCustomersAt(end);
+        long prevCustomers = customerRepository.countActiveCustomersAt(start);
 
         BigDecimal aov = (orders > 0)
                 ? revenue.divide(BigDecimal.valueOf(orders), 2, RoundingMode.HALF_UP)
@@ -47,8 +50,6 @@ public class AnalyticsService {
         BigDecimal prevAov = (prevOrders > 0)
                 ? prevRevenue.divide(BigDecimal.valueOf(prevOrders), 2, RoundingMode.HALF_UP)
                 : BigDecimal.ZERO;
-
-        long prevCustomers = customerRepository.countActiveCustomers(); // Note: Simplified, actual history needs a temporal query. Assuming 0 growth if no temporal data exists.
 
         double revenueGrowth = growthPercent(prevRevenue, revenue);
         double orderGrowth = growthPercent(BigDecimal.valueOf(prevOrders), BigDecimal.valueOf(orders));

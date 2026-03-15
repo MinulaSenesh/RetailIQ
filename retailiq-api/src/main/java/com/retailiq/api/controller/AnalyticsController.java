@@ -45,8 +45,8 @@ public class AnalyticsController {
         })
         @GetMapping("/kpis")
         public ResponseEntity<ApiResponse<KpiResponse>> getKpis(
-                        @Parameter(description = "Start date (YYYY-MM-DD)") @RequestParam(defaultValue = "#{T(java.time.LocalDate).now().minusMonths(1).toString()}") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start_date,
-                        @Parameter(description = "End date (YYYY-MM-DD)") @RequestParam(defaultValue = "#{T(java.time.LocalDate).now().toString()}") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end_date) {
+                        @Parameter(description = "Start date (YYYY-MM-DD)") @RequestParam(name = "start_date", defaultValue = "#{T(java.time.LocalDate).now().minusMonths(1).toString()}") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start_date,
+                        @Parameter(description = "End date (YYYY-MM-DD)") @RequestParam(name = "end_date", defaultValue = "#{T(java.time.LocalDate).now().toString()}") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end_date) {
                 return ResponseEntity.ok(
                                 ApiResponse.success(analyticsService.getKpis(start_date, end_date), "KPIs retrieved"));
         }
@@ -60,10 +60,10 @@ public class AnalyticsController {
         })
         @GetMapping("/sales/trend")
         public ResponseEntity<ApiResponse<List<SalesTrendDto>>> getSalesTrend(
-                        @Parameter(description = "Start date") @RequestParam(defaultValue = "#{T(java.time.LocalDate).now().minusMonths(3).toString()}") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start_date,
-                        @Parameter(description = "End date") @RequestParam(defaultValue = "#{T(java.time.LocalDate).now().toString()}") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end_date,
-                        @Parameter(description = "Aggregation period: day, week, month") @RequestParam(defaultValue = "day") String period,
-                        @Parameter(description = "Filter by region") @RequestParam(required = false) String region) {
+                        @Parameter(description = "Start date") @RequestParam(name = "start_date", defaultValue = "#{T(java.time.LocalDate).now().minusMonths(3).toString()}") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start_date,
+                        @Parameter(description = "End date") @RequestParam(name = "end_date", defaultValue = "#{T(java.time.LocalDate).now().toString()}") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end_date,
+                        @Parameter(description = "Aggregation period: day, week, month") @RequestParam(name = "period", defaultValue = "day") String period,
+                        @Parameter(description = "Filter by region") @RequestParam(name = "region", required = false) String region) {
                 return ResponseEntity.ok(ApiResponse.success(
                                 analyticsService.getSalesTrend(start_date, end_date, period, region),
                                 "Sales trend retrieved"));
@@ -77,8 +77,8 @@ public class AnalyticsController {
         })
         @GetMapping("/sales/by-region")
         public ResponseEntity<ApiResponse<List<Object>>> getSalesByRegion(
-                        @RequestParam(defaultValue = "#{T(java.time.LocalDate).now().minusMonths(1).toString()}") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start_date,
-                        @RequestParam(defaultValue = "#{T(java.time.LocalDate).now().toString()}") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end_date) {
+                        @RequestParam(name = "start_date", defaultValue = "#{T(java.time.LocalDate).now().minusMonths(1).toString()}") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start_date,
+                        @RequestParam(name = "end_date", defaultValue = "#{T(java.time.LocalDate).now().toString()}") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end_date) {
                 return ResponseEntity.ok(ApiResponse.success(analyticsService.getSalesByRegion(start_date, end_date),
                                 "Sales by region retrieved"));
         }
@@ -104,10 +104,10 @@ public class AnalyticsController {
         })
         @GetMapping("/products/top")
         public ResponseEntity<ApiResponse<List<ProductPerformanceDto>>> getTopProducts(
-                        @RequestParam(defaultValue = "#{T(java.time.LocalDate).now().minusMonths(1).toString()}") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start_date,
-                        @RequestParam(defaultValue = "#{T(java.time.LocalDate).now().toString()}") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end_date,
-                        @Parameter(description = "Filter by category ID") @RequestParam(required = false) Long category_id,
-                        @Parameter(description = "Max records to return") @RequestParam(defaultValue = "10") int limit) {
+                        @RequestParam(name = "start_date", defaultValue = "#{T(java.time.LocalDate).now().minusMonths(1).toString()}") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start_date,
+                        @RequestParam(name = "end_date", defaultValue = "#{T(java.time.LocalDate).now().toString()}") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end_date,
+                        @Parameter(description = "Filter by category ID") @RequestParam(name = "category_id", required = false) Long category_id,
+                        @Parameter(description = "Max records to return") @RequestParam(name = "limit", defaultValue = "10") int limit) {
                 return ResponseEntity.ok(ApiResponse.success(
                                 analyticsService.getTopProducts(start_date, end_date, category_id, limit),
                                 "Top products retrieved"));
@@ -129,7 +129,7 @@ public class AnalyticsController {
         @Operation(summary = "Get sales forecast", description = "Returns ML-based sales forecast from Python analytics microservice")
         @GetMapping("/forecast")
         public ResponseEntity<ApiResponse<Object>> getForecast(
-                        @RequestParam(defaultValue = "30") int days) {
+                        @RequestParam(name = "days", defaultValue = "30") int days) {
                 try {
                         Object result = restClient.get()
                                         .uri("/forecast/sales?days=" + days)

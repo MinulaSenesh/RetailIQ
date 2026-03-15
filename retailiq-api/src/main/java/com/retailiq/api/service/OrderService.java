@@ -32,6 +32,8 @@ public class OrderService {
                 .customer(customer)
                 .orderDate(LocalDateTime.now())
                 .status("PENDING")
+                .paymentStatus("PENDING")
+                .paymentMethod(request.getPaymentMethod())
                 .totalAmount(request.getTotalAmount())
                 .discountAmount(BigDecimal.ZERO)
                 .shippingAddress(customer.getCity() + ", " + customer.getCountry())

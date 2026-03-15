@@ -25,8 +25,8 @@ public class ProductController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<Product>>> getAll(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "50") int size) {
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "50") int size) {
         Page<Product> products = productRepository.findByActiveTrue(
                 PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "productId")));
         return ResponseEntity.ok(ApiResponse.success(
@@ -35,7 +35,7 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Product>> getById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Product>> getById(@PathVariable("id") Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "id", id));
         return ResponseEntity.ok(ApiResponse.success(product, "Product retrieved"));
@@ -51,7 +51,7 @@ public class ProductController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
-    public ResponseEntity<ApiResponse<Product>> update(@PathVariable Long id, @RequestBody Product updated) {
+    public ResponseEntity<ApiResponse<Product>> update(@PathVariable("id") Long id, @RequestBody Product updated) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "id", id));
         product.setProductName(updated.getProductName());
@@ -71,7 +71,7 @@ public class ProductController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
-    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable("id") Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "id", id));
 

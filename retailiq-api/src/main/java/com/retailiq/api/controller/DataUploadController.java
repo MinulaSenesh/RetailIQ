@@ -33,14 +33,14 @@ public class DataUploadController {
     }
 
     @GetMapping("/upload/{id}/errors")
-    public ResponseEntity<ApiResponse<String>> getErrors(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<String>> getErrors(@PathVariable("id") Long id) {
         UploadHistory history = dataUploadService.getUploadById(id);
         return ResponseEntity.ok(ApiResponse.success(history.getErrorDetails(), "Error details retrieved"));
     }
 
     @DeleteMapping("/upload/history/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
-    public ResponseEntity<ApiResponse<Void>> deleteHistory(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteHistory(@PathVariable("id") Long id) {
         dataUploadService.deleteHistoryById(id);
         return ResponseEntity.ok(ApiResponse.success(null, "Upload history deleted successfully"));
     }

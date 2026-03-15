@@ -25,9 +25,9 @@ public class CustomerController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<Customer>>> getAll(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "100") int size,
-            @RequestParam(required = false) String segment) {
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "100") int size,
+            @RequestParam(name = "segment", required = false) String segment) {
 
         List<Customer> customers;
         if (segment != null && !segment.isBlank()) {
@@ -43,7 +43,7 @@ public class CustomerController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Customer>> getById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Customer>> getById(@PathVariable("id") Long id) {
         Customer customer = customerRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer", "id", id));
         return ResponseEntity.ok(ApiResponse.success(customer, "Customer retrieved"));
@@ -59,7 +59,7 @@ public class CustomerController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
-    public ResponseEntity<ApiResponse<Customer>> update(@PathVariable Long id, @RequestBody Customer updated) {
+    public ResponseEntity<ApiResponse<Customer>> update(@PathVariable("id") Long id, @RequestBody Customer updated) {
         Customer customer = customerRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer", "id", id));
         customer.setFirstName(updated.getFirstName());
@@ -76,7 +76,7 @@ public class CustomerController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
-    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable("id") Long id) {
         if (!customerRepository.existsById(id))
             throw new ResourceNotFoundException("Customer", "id", id);
         customerRepository.deleteById(id);

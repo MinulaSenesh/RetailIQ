@@ -19,7 +19,7 @@ export function SplineSceneBasic() {
             The Future of <br /> Retail is Here
           </h1>
           <p className="mt-6 text-neutral-400 max-w-lg mx-auto md:mx-0 text-lg">
-            Experience the next generation of e-commerce with RetailIQ. 
+            Experience the next generation of e-commerce with Zyvora. 
             Immersive 3D shopping, AI-driven insights, and lightning-fast performance.
           </p>
           <div className="mt-10 flex flex-wrap gap-4 justify-center md:justify-start">

@@ -29,6 +29,13 @@ public class Order {
     @Column(nullable = false)
     private String status;
 
+    @Column(name = "payment_status")
+    @Builder.Default
+    private String paymentStatus = "PENDING";
+
+    @Column(name = "transaction_id")
+    private String transactionId;
+
     @Column(name = "total_amount", nullable = false)
     private BigDecimal totalAmount;
 

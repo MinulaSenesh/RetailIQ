@@ -8,6 +8,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Ensures seed user passwords are correctly BCrypt-hashed on startup.
@@ -23,31 +24,34 @@ public class DataInitializer implements CommandLineRunner {
     private final PasswordEncoder passwordEncoder;
 
     @Override
+    @Transactional
     public void run(String... args) {
-        userRepository.findByEmail("admin@retailiq.com").ifPresentOrElse(user -> {
+        cleanDuplicateUsers("admin@retailiq.com", "Admin User", "ADMIN");
+        cleanDuplicateUsers("analyst@retailiq.com", "Analyst User", "ANALYST");
+        cleanDuplicateUsers("manager@retailiq.com", "Manager User", "MANAGER");
+
+        log.info("✅ All seed user passwords initialized and duplicates cleaned");
+    }
+
+    private void cleanDuplicateUsers(String email, String username, String role) {
+        var users = userRepository.findAll().stream()
+                .filter(u -> email.equalsIgnoreCase(u.getEmail()))
+                .toList();
+
+        if (users.size() > 1) {
+            log.warn("Found {} duplicate users for email {}. Cleaning up...", users.size(), email);
+            // Keep the first one, delete others
+            for (int i = 1; i < users.size(); i++) {
+                userRepository.delete(users.get(i));
+            }
+        }
+
+        userRepository.findByEmail(email).ifPresentOrElse(user -> {
             user.setPasswordHash(passwordEncoder.encode("password"));
             userRepository.save(user);
         }, () -> {
-            userRepository.save(User.builder().email("admin@retailiq.com").username("Admin User")
-                    .passwordHash(passwordEncoder.encode("password")).role("ADMIN").build());
+            userRepository.save(User.builder().email(email).username(username)
+                    .passwordHash(passwordEncoder.encode("password")).role(role).build());
         });
-
-        userRepository.findByEmail("analyst@retailiq.com").ifPresentOrElse(user -> {
-            user.setPasswordHash(passwordEncoder.encode("password"));
-            userRepository.save(user);
-        }, () -> {
-            userRepository.save(User.builder().email("analyst@retailiq.com").username("Analyst User")
-                    .passwordHash(passwordEncoder.encode("password")).role("ANALYST").build());
-        });
-
-        userRepository.findByEmail("manager@retailiq.com").ifPresentOrElse(user -> {
-            user.setPasswordHash(passwordEncoder.encode("password"));
-            userRepository.save(user);
-        }, () -> {
-            userRepository.save(User.builder().email("manager@retailiq.com").username("Manager User")
-                    .passwordHash(passwordEncoder.encode("password")).role("MANAGER").build());
-        });
-
-        log.info("✅ All seed user passwords initialized (admin, analyst, manager)");
     }
 }

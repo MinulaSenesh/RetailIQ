@@ -1,7 +1,7 @@
 // src/pages/UploadPage.tsx
 import { useState, useCallback, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
-import { Upload, FileText, CheckCircle2, XCircle, Loader2, RefreshCw, Trash2 } from "lucide-react";
+import { Upload, FileText, CheckCircle2, XCircle, Loader2, RefreshCw, Trash2, Download, AlertCircle, Eye } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -39,6 +39,8 @@ export default function UploadPage() {
     const [loadingHistory, setLoadingHistory] = useState(false);
     const [result, setResult] = useState<{ success: boolean; message: string } | null>(null);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [errorDetails, setErrorDetails] = useState<string | null>(null);
+    const [isErrorDialogOpen, setIsErrorDialogOpen] = useState(false);
 
     const fetchHistory = async () => {
         setLoadingHistory(true);
@@ -94,8 +96,18 @@ export default function UploadPage() {
     return (
         <div className="space-y-6">
             <div>
-                <h1 className="text-3xl font-bold tracking-tight">Data Upload</h1>
-                <p className="text-muted-foreground text-sm mt-1">Upload CSV or Excel files to import orders, products, and customers</p>
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h1 className="text-3xl font-bold tracking-tight">Data Upload</h1>
+                        <p className="text-muted-foreground text-sm mt-1">Upload CSV or Excel files to import orders, products, and customers</p>
+                    </div>
+                    <Button variant="outline" className="gap-2 border-2" asChild>
+                        <a href="/template_sales_import.csv" download>
+                            <Download className="w-4 h-4" />
+                            Download Template
+                        </a>
+                    </Button>
+                </div>
             </div>
 
             {/* Dropzone */}
@@ -127,7 +139,7 @@ export default function UploadPage() {
                                 <p className="text-xs text-muted-foreground">{(selectedFile.size / 1024).toFixed(1)} KB</p>
                             </div>
                             <Button onClick={handleUpload} disabled={uploading} size="sm">
-                                {uploading ? <><Loader2 className="mr-2 w-4 h-4 animate-spin" />Uploading…</> : "Upload & Process"}
+                                {uploading ? <><Loader2 className="mr-2 w-4 h-4 animate-spin" />Processing…</> : "Upload & Sync"}
                             </Button>
                         </div>
                     )}
@@ -174,7 +186,7 @@ export default function UploadPage() {
                                     <TableHead className="text-right">Inserted</TableHead>
                                     <TableHead className="text-right">Errors</TableHead>
                                     <TableHead className="text-right">Date</TableHead>
-                                    {canDelete && <TableHead className="text-right pr-6">Actions</TableHead>}
+                                    <TableHead className="text-right pr-6">Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -201,13 +213,29 @@ export default function UploadPage() {
                                                 {h.errorRows}
                                             </TableCell>
                                             <TableCell className="text-right text-muted-foreground text-sm">{formatDate(h.startedAt)}</TableCell>
-                                            {canDelete && (
-                                                <TableCell className="text-right pr-6">
-                                                    <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-600 hover:bg-red-500/10" onClick={() => handleDelete(h.id)}>
-                                                        <Trash2 className="w-4 h-4" />
-                                                    </Button>
-                                                </TableCell>
-                                            )}
+                                            <TableCell className="text-right pr-6">
+                                                <div className="flex items-center justify-end gap-1">
+                                                    {h.status === "FAILED" && (
+                                                        <Button 
+                                                            variant="ghost" 
+                                                            size="icon" 
+                                                            className="text-amber-500"
+                                                            onClick={async () => {
+                                                                const res = await api.get(`/data/upload/${h.id}/errors`);
+                                                                setErrorDetails(res.data.data);
+                                                                setIsErrorDialogOpen(true);
+                                                            }}
+                                                        >
+                                                            <Eye className="w-4 h-4" />
+                                                        </Button>
+                                                    )}
+                                                    {canDelete && (
+                                                        <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-600" onClick={() => handleDelete(h.id)}>
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </Button>
+                                                    )}
+                                                </div>
+                                            </TableCell>
                                         </TableRow>
                                     );
                                 })}
@@ -216,6 +244,35 @@ export default function UploadPage() {
                     )}
                 </CardContent>
             </Card>
+
+            {/* Error Dialog */}
+            {isErrorDialogOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+                    <Card className="w-full max-w-lg shadow-2xl border-2">
+                        <CardHeader className="flex flex-row items-center gap-3">
+                            <div className="p-2 rounded-full bg-red-100 text-red-600">
+                                <AlertCircle className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <CardTitle>Import Error Details</CardTitle>
+                                <p className="text-sm text-muted-foreground">Technical details of the failed import</p>
+                            </div>
+                        </CardHeader>
+                        <CardContent className="py-4">
+                            <div className="bg-muted p-4 rounded-lg font-mono text-xs overflow-auto max-h-[300px] border">
+                                {errorDetails ? (
+                                    <pre className="whitespace-pre-wrap">{JSON.stringify(JSON.parse(errorDetails), null, 2)}</pre>
+                                ) : (
+                                    "No detailed error information available."
+                                )}
+                            </div>
+                        </CardContent>
+                        <div className="p-4 border-t flex justify-end">
+                            <Button onClick={() => setIsErrorDialogOpen(false)}>Close</Button>
+                        </div>
+                    </Card>
+                </div>
+            )}
         </div>
     );
 }

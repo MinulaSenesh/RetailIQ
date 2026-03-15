@@ -34,8 +34,8 @@ export default function KPICard({ title, value, format = "number", growthPercent
 
     const trend = getTrendIcon(growthPercent);
     const TrendIcon = trend === "up" ? TrendingUp : trend === "down" ? TrendingDown : Minus;
-    const trendColor = trend === "up" ? "text-emerald-600" : trend === "down" ? "text-red-500" : "text-muted-foreground";
-    const sparkColor = trend === "up" ? "#10b981" : trend === "down" ? "#ef4444" : "#6b7280";
+    const trendColor = trend === "up" ? "text-emerald-600" : trend === "down" ? "text-red-500" : "text-blue-500";
+    const sparkColor = trend === "up" ? "#10b981" : trend === "down" ? "#ef4444" : "#3b82f6";
     const displayValue = format === "currency" ? formatCurrency(value) : formatNumber(value);
 
     return (

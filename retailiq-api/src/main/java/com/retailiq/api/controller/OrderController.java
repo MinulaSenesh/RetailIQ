@@ -29,12 +29,12 @@ public class OrderController {
 
         @GetMapping
         public ResponseEntity<ApiResponse<List<Order>>> getAll(
-                        @RequestParam(defaultValue = "0") int page,
-                        @RequestParam(defaultValue = "50") int size,
-                        @RequestParam(required = false) String status) {
+                        @RequestParam(name = "page", defaultValue = "0") int page,
+                        @RequestParam(name = "size", defaultValue = "50") int size,
+                        @RequestParam(name = "status", required = false) String status) {
 
                 Page<Order> paged = orderRepository.findAll(
-                                PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "orderDate")));
+                                PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "orderId")));
                 List<Order> orders = paged.getContent();
                 if (status != null && !status.isBlank()) {
                         orders = orders.stream()
@@ -62,7 +62,7 @@ public class OrderController {
         }
 
         @GetMapping("/{id}")
-        public ResponseEntity<ApiResponse<Order>> getById(@PathVariable Long id) {
+        public ResponseEntity<ApiResponse<Order>> getById(@PathVariable("id") Long id) {
                 Order order = orderRepository.findById(id)
                                 .orElseThrow(() -> new ResourceNotFoundException("Order", "id", id));
                 return ResponseEntity.ok(ApiResponse.success(order, "Order retrieved"));
@@ -70,8 +70,8 @@ public class OrderController {
 
         @PutMapping("/{id}/status")
         public ResponseEntity<ApiResponse<Order>> updateStatus(
-                        @PathVariable Long id,
-                        @RequestParam String status) {
+                        @PathVariable("id") Long id,
+                        @RequestParam("status") String status) {
                 Order order = orderRepository.findById(id)
                                 .orElseThrow(() -> new ResourceNotFoundException("Order", "id", id));
                 order.setStatus(status);

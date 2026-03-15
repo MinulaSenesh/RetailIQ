@@ -50,6 +50,7 @@ export interface Product {
     costPrice: number;
     stockQuantity: number;
     active: boolean;
+    imageUrl?: string;
     createdAt: string;
     updatedAt: string;
 }
