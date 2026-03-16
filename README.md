@@ -65,7 +65,6 @@ A high-performance, full-stack e-commerce solution bridging the gap between a lu
 
 ## 🔐 Access Credentials (Demo)
 
-*   **Super Admin**: `admin@retailiq.com` / `password`
 *   **Test Customer**: `customer.test@zyvora.com` / `Password123!`
 
 ---
