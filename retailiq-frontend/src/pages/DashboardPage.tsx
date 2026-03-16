@@ -12,6 +12,7 @@ import KPICard from "@/components/dashboard/KPICard";
 import AreaTrendChart from "@/components/charts/AreaTrendChart";
 import DonutChart from "@/components/charts/DonutChart";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { useAuth } from "@/context/AuthContext";
 import { formatCurrency, formatNumber, getSegmentChartColor } from "@/lib/formatters";
 import { format } from "date-fns";
 import { DateRange } from "react-day-picker";
@@ -26,6 +27,8 @@ const SEED_SPARK = [
 ];
 
 export default function DashboardPage() {
+    const { user } = useAuth();
+    const isViewer = user?.role === "VIEWER";
     const [period, setPeriod] = useState<Period>("day");
     
     // Default to last 30 days
@@ -79,6 +82,17 @@ export default function DashboardPage() {
 
     return (
         <div className="space-y-6">
+            {isViewer && (
+                <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 flex items-center gap-3 backdrop-blur-sm">
+                    <div className="bg-blue-500 rounded-full p-1">
+                        <Users className="w-4 h-4 text-white" />
+                    </div>
+                    <div className="flex-1">
+                        <p className="text-sm font-medium text-blue-400">Preview Mode</p>
+                        <p className="text-xs text-blue-400/70">You are viewing this dashboard as a member of the community. All administrative actions are disabled.</p>
+                    </div>
+                </div>
+            )}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
@@ -88,18 +102,42 @@ export default function DashboardPage() {
                     <DatePickerWithRange date={date} setDate={setDate} />
                     <div className="flex gap-2">
                         <div className="flex rounded-md shadow-sm" role="group">
-                            <Button variant="outline" size="sm" className="rounded-r-none border-r-0" onClick={() => handleExport("sales", "csv")}>
+                            <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="rounded-r-none border-r-0" 
+                                onClick={() => handleExport("sales", "csv")}
+                                disabled={isViewer}
+                            >
                                 <FileText className="mr-2 h-4 w-4" /> Sales CSV
                             </Button>
-                            <Button variant="outline" size="sm" className="rounded-l-none" onClick={() => handleExport("sales", "pdf")}>
+                            <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="rounded-l-none" 
+                                onClick={() => handleExport("sales", "pdf")}
+                                disabled={isViewer}
+                            >
                                 PDF
                             </Button>
                         </div>
                         <div className="flex rounded-md shadow-sm" role="group">
-                            <Button variant="outline" size="sm" className="rounded-r-none border-r-0" onClick={() => handleExport("products", "csv")}>
+                            <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="rounded-r-none border-r-0" 
+                                onClick={() => handleExport("products", "csv")}
+                                disabled={isViewer}
+                            >
                                 <Download className="mr-2 h-4 w-4" /> Products CSV
                             </Button>
-                            <Button variant="outline" size="sm" className="rounded-l-none" onClick={() => handleExport("products", "pdf")}>
+                            <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="rounded-l-none" 
+                                onClick={() => handleExport("products", "pdf")}
+                                disabled={isViewer}
+                            >
                                 PDF
                             </Button>
                         </div>

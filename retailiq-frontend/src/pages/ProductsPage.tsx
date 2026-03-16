@@ -1,6 +1,6 @@
 // src/pages/ProductsPage.tsx
 import { useEffect, useState } from "react";
-import { Search, Package } from "lucide-react";
+import { Search, Package, Users } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -13,12 +13,14 @@ import { productService } from "@/api/products";
 import { Product } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { MoreHorizontal, Trash2, Edit, ArrowUpDown, Loader2 } from "lucide-react";
+import { MoreHorizontal, Trash2, Edit, ArrowUpDown, Loader2, RefreshCw } from "lucide-react";
+
 import { useAuth } from "@/context/AuthContext";
 
 export default function ProductsPage() {
     const { user } = useAuth();
-    const canEdit = user?.role === "ADMIN" || user?.role === "MANAGER";
+    const isViewer = user?.role === "VIEWER";
+    const canEdit = (user?.role === "ADMIN" || user?.role === "MANAGER") && !isViewer;
 
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
@@ -105,17 +107,35 @@ export default function ProductsPage() {
 
     return (
         <div className="space-y-6">
+            {isViewer && (
+                <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 flex items-center gap-3 backdrop-blur-sm">
+                    <div className="bg-blue-500 rounded-full p-1">
+                        <Users className="w-4 h-4 text-white" />
+                    </div>
+                    <div className="flex-1">
+                        <p className="text-sm font-medium text-blue-400">Preview Mode</p>
+                        <p className="text-xs text-blue-400/70">You are viewing the product catalog as a member of the community. Editing and deleting is disabled.</p>
+                    </div>
+                </div>
+            )}
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight">Products</h1>
                     <p className="text-muted-foreground text-sm mt-1">Catalog management and stock overview</p>
                 </div>
-                {canEdit && (
-                    <Button onClick={() => { setEditingProduct(null); setIsDialogOpen(true); }}>
-                        Add Product
+                <div className="flex items-center gap-2">
+                    <Button onClick={loadProducts} variant="outline" className="gap-2 font-bold border-2">
+                        <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                        Refresh
                     </Button>
-                )}
+                    {canEdit && (
+                        <Button onClick={() => { setEditingProduct(null); setIsDialogOpen(true); }}>
+                            Add Product
+                        </Button>
+                    )}
+                </div>
             </div>
+
 
             {/* Summary cards */}
             <div className="grid gap-4 grid-cols-2 sm:grid-cols-4">

@@ -2,6 +2,7 @@ package com.retailiq.api.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.retailiq.api.dto.ProfileUpdateRequest;
+import com.retailiq.api.dto.UserDto;
 import com.retailiq.api.entity.User;
 import com.retailiq.api.security.JwtTokenProvider;
 import com.retailiq.api.service.ProfileService;
@@ -42,11 +43,11 @@ class ProfileControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private User mockUser;
+    private UserDto mockUserDto;
 
     @BeforeEach
     void setUp() {
-        mockUser = User.builder()
+        mockUserDto = UserDto.builder()
                 .userId(1L)
                 .email("test@example.com")
                 .username("test@example.com")
@@ -59,7 +60,7 @@ class ProfileControllerTest {
     @Test
     @WithMockUser(username = "test@example.com", roles = {"CUSTOMER"})
     void testGetProfile_Success() throws Exception {
-        when(profileService.getProfile("test@example.com")).thenReturn(mockUser);
+        when(profileService.getProfile("test@example.com")).thenReturn(mockUserDto);
 
         mockMvc.perform(get("/api/v1/profile")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -83,7 +84,7 @@ class ProfileControllerTest {
         updateRequest.setFirstName("Updated");
         updateRequest.setLastName("Name");
 
-        User updatedUser = User.builder()
+        UserDto updatedUserDto = UserDto.builder()
                 .userId(1L)
                 .email("test@example.com")
                 .firstName("Updated")
@@ -91,7 +92,7 @@ class ProfileControllerTest {
                 .build();
 
         when(profileService.updateProfile(eq("test@example.com"), any(ProfileUpdateRequest.class)))
-                .thenReturn(updatedUser);
+                .thenReturn(updatedUserDto);
 
         mockMvc.perform(put("/api/v1/profile")
                 .with(csrf())

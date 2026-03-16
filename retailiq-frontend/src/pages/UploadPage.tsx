@@ -1,7 +1,7 @@
 // src/pages/UploadPage.tsx
 import { useState, useCallback, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
-import { Upload, FileText, CheckCircle2, XCircle, Loader2, RefreshCw, Trash2, Download, AlertCircle, Eye } from "lucide-react";
+import { Upload, FileText, CheckCircle2, XCircle, Loader2, RefreshCw, Trash2, Download, AlertCircle, Eye, Users } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -32,6 +32,7 @@ const STATUS_CONFIG = {
 
 export default function UploadPage() {
     const { user } = useAuth();
+    const isViewer = user?.role === "VIEWER";
     const canDelete = user?.role === "ADMIN" || user?.role === "MANAGER";
 
     const [uploading, setUploading] = useState(false);
@@ -95,6 +96,17 @@ export default function UploadPage() {
 
     return (
         <div className="space-y-6">
+            {isViewer && (
+                <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 flex items-center gap-3 backdrop-blur-sm">
+                    <div className="bg-blue-500 rounded-full p-1">
+                        <Users className="w-4 h-4 text-white" />
+                    </div>
+                    <div className="flex-1">
+                        <p className="text-sm font-medium text-blue-400">Preview Mode</p>
+                        <p className="text-xs text-blue-400/70">You are viewing this system as exploring member of the community. Uploading data is restricted.</p>
+                    </div>
+                </div>
+            )}
             <div>
                 <div className="flex items-center justify-between">
                     <div>
@@ -115,9 +127,10 @@ export default function UploadPage() {
                 <CardHeader><CardTitle>Upload File</CardTitle></CardHeader>
                 <CardContent className="space-y-4">
                     <div
-                        {...getRootProps()}
-                        className={`border-2 border-dashed rounded-xl p-10 text-center cursor-pointer transition-colors
-              ${isDragActive ? "border-primary bg-primary/5" : "border-border hover:border-primary/50 hover:bg-muted/30"}`}
+                        {...(isViewer ? {} : getRootProps())}
+                        className={`border-2 border-dashed rounded-xl p-10 text-center transition-colors
+              ${isDragActive ? "border-primary bg-primary/5" : "border-border hover:border-primary/50 hover:bg-muted/30"}
+              ${isViewer ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
                     >
                         <input {...getInputProps()} />
                         <Upload className="w-10 h-10 mx-auto mb-3 text-muted-foreground" />
@@ -138,8 +151,8 @@ export default function UploadPage() {
                                 <p className="text-sm font-medium truncate">{selectedFile.name}</p>
                                 <p className="text-xs text-muted-foreground">{(selectedFile.size / 1024).toFixed(1)} KB</p>
                             </div>
-                            <Button onClick={handleUpload} disabled={uploading} size="sm">
-                                {uploading ? <><Loader2 className="mr-2 w-4 h-4 animate-spin" />Processing…</> : "Upload & Sync"}
+                            <Button onClick={handleUpload} disabled={uploading || isViewer} size="sm">
+                                {uploading ? <><Loader2 className="mr-2 w-4 h-4 animate-spin" />Processing…</> : isViewer ? "Upload Disabled" : "Upload & Sync"}
                             </Button>
                         </div>
                     )}

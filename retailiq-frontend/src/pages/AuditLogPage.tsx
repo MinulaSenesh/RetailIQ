@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
-import { FileClock, Search } from "lucide-react";
+import { FileClock, Search, Users } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -35,18 +35,31 @@ export default function AuditLogPage() {
         return "bg-gray-100 text-gray-800";
     };
 
-    if (user?.role !== "ADMIN") {
+    const isViewer = user?.role === "VIEWER";
+    
+    if (user?.role !== "ADMIN" && !isViewer) {
         return (
             <div className="flex flex-col items-center justify-center h-[60vh]">
                 <FileClock className="w-16 h-16 text-muted-foreground/30 mb-4" />
                 <h1 className="text-2xl font-bold">Access Denied</h1>
-                <p className="text-muted-foreground mt-2">Only Administrators can view the system audit logs.</p>
+                <p className="text-muted-foreground mt-2">Only Administrators and authorized Viewers can view the system audit logs.</p>
             </div>
         );
     }
 
     return (
         <div className="space-y-6">
+            {isViewer && (
+                <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 flex items-center gap-3 backdrop-blur-sm">
+                    <div className="bg-blue-500 rounded-full p-1">
+                        <Users className="w-4 h-4 text-white" />
+                    </div>
+                    <div className="flex-1">
+                        <p className="text-sm font-medium text-blue-400">Preview Mode</p>
+                        <p className="text-xs text-blue-400/70">You are viewing system audit logs as a member of the community. All data is read-only.</p>
+                    </div>
+                </div>
+            )}
             <div>
                 <h1 className="text-3xl font-bold tracking-tight">System Audit Log</h1>
                 <p className="text-muted-foreground text-sm mt-1">Chronological record of all system configuration and data changes.</p>

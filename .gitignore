@@ -8,9 +8,25 @@ __pycache__/
 .idea/
 *.log
 *.csv
-.env
+.env*
+!.env.example
 
+# Runtime files
+*.dump
+replay_pid*.log
+hs_err_pid*.log
 
+# Scripts and temp files
 fix_*.py
 debug_*.py
-*.dump
+check_*.py
+db_*.py
+dump_*.py
+generate_*.py
+update_*.py
+temp/
+tmp/
+uploads/temp/
+
+# Railway
+.railway/

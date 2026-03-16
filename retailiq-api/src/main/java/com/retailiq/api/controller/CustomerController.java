@@ -1,10 +1,14 @@
 package com.retailiq.api.controller;
 
 import com.retailiq.api.entity.Customer;
+import com.retailiq.api.entity.User;
+
 import com.retailiq.api.exception.ApiResponse;
 import com.retailiq.api.exception.ResourceNotFoundException;
 import com.retailiq.api.repository.CustomerRepository;
+import com.retailiq.api.repository.UserRepository;
 import com.retailiq.api.service.AuditService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -12,16 +16,22 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.transaction.annotation.Transactional;
+
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/customers")
 @RequiredArgsConstructor
+@Transactional
 public class CustomerController {
 
+
     private final CustomerRepository customerRepository;
+    private final UserRepository userRepository;
     private final AuditService auditService;
+
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<Customer>>> getAll(
@@ -77,12 +87,23 @@ public class CustomerController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable("id") Long id) {
-        if (!customerRepository.existsById(id))
-            throw new ResourceNotFoundException("Customer", "id", id);
-        customerRepository.deleteById(id);
+        Customer customer = customerRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer", "id", id));
+
+        // Get associated user before deleting customer
+        User user = customer.getUser();
+
+        customerRepository.delete(customer);
+
+        // Also delete the associated user account if it exists
+        if (user != null) {
+            userRepository.delete(user);
+        }
 
         auditService.logAction("DELETE", "customers", id, "Deleted customer");
 
+
         return ResponseEntity.ok(ApiResponse.success(null, "Customer deleted"));
     }
+
 }

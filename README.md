@@ -63,9 +63,26 @@ A high-performance, full-stack e-commerce solution bridging the gap between a lu
 
 ---
 
-## 🔐 Access Credentials (Demo)
+## 🔐 Security & Deployment
 
-*   **Test Customer**: `customer.test@zyvora.com` / `Password123!`
+This project is designed to be public but protected. **Sensitive credentials are never hardcoded.**
+
+### **Environment Variables**
+Ensure the following variables are set in your production environment (e.g., Railway, Vercel):
+
+| Variable | Description |
+| :--- | :--- |
+| `DB_HOST` / `DB_USER` / `DB_PASSWORD` | MySQL Database credentials |
+| `JWT_SECRET` | Secure key for token signing (min 64 chars) |
+| `SEED_USER_PASSWORD` | Default password for the auto-generated seeded accounts |
+| `ANALYTICS_SERVICE_URL` | URL of the internal Python service |
+
+### **Community Preview (Live Demo)**
+The dashboard includes a "Preview Mode" for community members to explore the analytics and features without risk to production data.
+
+*   **Email**: `community@retailiq.com`
+*   **Password**: [Contact administrator or use default if local]
+*   **Permissions**: Read-only access to most modules. Uploads and deletions are disabled.
 
 ---
 

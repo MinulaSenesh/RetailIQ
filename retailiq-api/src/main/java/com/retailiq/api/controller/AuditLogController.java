@@ -19,7 +19,7 @@ public class AuditLogController {
     private final AuditLogRepository auditLogRepository;
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'VIEWER')")
     public ResponseEntity<ApiResponse<Page<AuditLog>>> getAuditLogs(
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "100") int size) {

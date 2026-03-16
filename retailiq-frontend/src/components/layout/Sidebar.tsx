@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/context/AuthContext";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { getAvatarUrl } from "@/lib/formatters";
 
 const BASE_NAV_ITEMS = [
     { to: "/dashboard", label: "Dashboard", Icon: LayoutDashboard },
@@ -52,7 +53,9 @@ export default function Sidebar() {
             <nav className="flex-1 px-3 py-4 space-y-1">
                 {(user?.role === "ADMIN"
                     ? [...BASE_NAV_ITEMS, { to: "/audit", label: "Audit Log", Icon: FileClock }]
-                    : BASE_NAV_ITEMS
+                    : user?.role === "VIEWER"
+                        ? BASE_NAV_ITEMS.filter(item => !["/upload"].includes(item.to))
+                        : BASE_NAV_ITEMS
                 ).map(({ to, label, Icon }) => (
                     <NavLink
                         key={to}
@@ -84,7 +87,7 @@ export default function Sidebar() {
                 <div className="flex items-center gap-3">
                     <Link to="/profile" className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent hover:text-accent-foreground transition-all group">
                         <Avatar className="w-8 h-8 group-hover:ring-2 ring-primary/20 transition-all">
-                            <AvatarImage src={user?.avatarUrl} alt={user?.username} />
+                            <AvatarImage src={getAvatarUrl(user?.avatarUrl)} alt={user?.username} />
                             <AvatarFallback className="text-xs bg-primary text-primary-foreground">{initials}</AvatarFallback>
                         </Avatar>
                         <div className="flex-1 min-w-0">

@@ -1,5 +1,4 @@
-// src/pages/ProfilePage.tsx
-import { useRef } from "react";
+import { useState, useRef } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,8 +10,9 @@ import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import axios from "axios";
-import { User, Camera, Loader2, Save, Phone, MapPin, Mail, Shield, Monitor } from "lucide-react";
-import { useState } from "react";
+import { User, Camera, Loader2, Save, Phone, MapPin, Mail, Shield, Monitor, Users } from "lucide-react";
+import { formatCurrency, formatNumber, getSegmentChartColor, getAvatarUrl } from "@/lib/formatters";
+import { format } from "date-fns";
 
 const profileSchema = z.object({
     firstName: z.string().min(2, "First name must be at least 2 characters"),
@@ -31,11 +31,12 @@ type ProfileForm = z.infer<typeof profileSchema>;
 
 export default function ProfilePage() {
     const { user, updateUser } = useAuth();
+    const isViewer = user?.role === "VIEWER";
     const [isUploading, setIsUploading] = useState(false);
     const [serverError, setServerError] = useState("");
     const [successMsg, setSuccessMsg] = useState("");
     const [twoFAEnabled, setTwoFAEnabled] = useState(false);
-    const isAdmin = user?.role !== "CUSTOMER";
+    const isAdmin = user?.role !== "CUSTOMER" && user?.role !== "VIEWER";
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const API_BASE = import.meta.env.VITE_API_BASE_URL || "/api/v1";
@@ -114,6 +115,18 @@ export default function ProfilePage() {
                     <p className="text-gray-500 dark:text-gray-400 mt-1">Manage your account information and preferences.</p>
                 </div>
 
+                {isViewer && (
+                    <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 flex items-center gap-3 backdrop-blur-sm">
+                        <div className="bg-blue-500 rounded-full p-1">
+                            <Users className="w-4 h-4 text-white" />
+                        </div>
+                        <div className="flex-1">
+                            <p className="text-sm font-medium text-blue-400">Preview Mode</p>
+                            <p className="text-xs text-blue-400/70">You are exploring this profile as a member of the community. Modifying this account is restricted.</p>
+                        </div>
+                    </div>
+                )}
+
             <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-6">
                 {serverError && (
                     <Alert variant="destructive">
@@ -135,7 +148,7 @@ export default function ProfilePage() {
                         <CardContent className="flex flex-col items-center space-y-4 py-8">
                             <div className="relative group">
                                 <Avatar className="w-32 h-32 border-4 border-white shadow-2xl ring-2 ring-[#0A0A0A]/10 transition-transform duration-500 group-hover:scale-105">
-                                    <AvatarImage src={user?.avatarUrl} alt={user?.username} />
+                                    <AvatarImage src={getAvatarUrl(user?.avatarUrl)} alt={user?.username} />
                                     <AvatarFallback className={`text-3xl font-black ${isAdmin ? "bg-primary text-primary-foreground" : "bg-[#DC2626] text-white"}`}>
                                         {user?.firstName?.[0] || user?.username?.[0] || "U"}
                                     </AvatarFallback>
@@ -143,9 +156,9 @@ export default function ProfilePage() {
                                 <Button
                                     variant="secondary"
                                     size="icon"
-                                    className={`absolute bottom-1 right-1 rounded-full shadow-lg border-2 border-white text-white transition-all hover:scale-110 active:scale-95 ${isAdmin ? "bg-primary hover:bg-primary/90 text-primary-foreground" : "bg-red-600 hover:bg-red-700"}`}
-                                    onClick={() => fileInputRef.current?.click()}
-                                    disabled={isUploading}
+                                    className={`absolute bottom-1 right-1 rounded-full shadow-lg border-2 border-white text-white transition-all hover:scale-110 active:scale-95 ${isViewer ? "bg-gray-400 cursor-not-allowed" : isAdmin ? "bg-primary hover:bg-primary/90 text-primary-foreground" : "bg-red-600 hover:bg-red-700"}`}
+                                    onClick={() => !isViewer && fileInputRef.current?.click()}
+                                    disabled={isUploading || isViewer}
                                     type="button"
                                 >
                                     {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4" />}
@@ -286,7 +299,7 @@ export default function ProfilePage() {
                                 </div>
                             </CardContent>
                         </Card>
-                    ) : (
+                    ) : !isViewer ? (
                         <Card className="md:col-span-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm p-6">
                             <CardHeader className="p-0 mb-6">
                                 <CardTitle className="text-gray-900 dark:text-white font-bold text-sm uppercase tracking-widest flex items-center gap-2">
@@ -312,11 +325,15 @@ export default function ProfilePage() {
                                 </div>
                             </CardContent>
                         </Card>
-                    )}
+                    ) : null}
                 </div>
                 <div className="flex justify-end pt-4">
-                    <Button type="submit" disabled={isSubmitting} className={isAdmin ? "bg-primary hover:bg-primary/90 text-white font-bold px-8 rounded-xl" : "bg-red-600 hover:bg-red-700 text-white font-bold px-8 rounded-xl"}>
-                        {isSubmitting ? (<><Loader2 className="w-4 h-4 mr-2 animate-spin" />Saving...</>) : (<><Save className="w-4 h-4 mr-2" />Save Changes</>)}
+                    <Button 
+                        type="submit" 
+                        disabled={isSubmitting || isViewer} 
+                        className={isViewer ? "bg-gray-400 cursor-not-allowed text-white font-bold px-8 rounded-xl" : isAdmin ? "bg-primary hover:bg-primary/90 text-white font-bold px-8 rounded-xl" : "bg-red-600 hover:bg-red-700 text-white font-bold px-8 rounded-xl"}
+                    >
+                        {isSubmitting ? (<><Loader2 className="w-4 h-4 mr-2 animate-spin" />Saving...</>) : isViewer ? "Editing Disabled" : (<><Save className="w-4 h-4 mr-2" />Save Changes</>)}
                     </Button>
                 </div>
             </form>

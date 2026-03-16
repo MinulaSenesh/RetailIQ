@@ -28,11 +28,13 @@ public class DataUploadController {
     }
 
     @GetMapping("/upload/history")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'VIEWER')")
     public ResponseEntity<ApiResponse<List<UploadHistory>>> getHistory() {
         return ResponseEntity.ok(ApiResponse.success(dataUploadService.getAllHistory(), "Upload history retrieved"));
     }
 
     @GetMapping("/upload/{id}/errors")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'VIEWER')")
     public ResponseEntity<ApiResponse<String>> getErrors(@PathVariable("id") Long id) {
         UploadHistory history = dataUploadService.getUploadById(id);
         return ResponseEntity.ok(ApiResponse.success(history.getErrorDetails(), "Error details retrieved"));

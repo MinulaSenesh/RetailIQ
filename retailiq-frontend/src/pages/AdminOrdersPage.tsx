@@ -9,7 +9,8 @@ import {
     XCircle, 
     Truck, 
     PackageCheck,
-    RefreshCw
+    RefreshCw,
+    Users
 } from "lucide-react";
 import api from "@/lib/api";
 import { formatCurrency } from "@/lib/formatters";
@@ -52,6 +53,8 @@ const STATUS_OPTIONS = [
 export default function AdminOrdersPage() {
     const { user } = useAuth();
     const isAnalyst = user?.role === "ANALYST";
+    const isViewer = user?.role === "VIEWER";
+    const readOnly = isAnalyst || isViewer;
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState("");
@@ -97,7 +100,7 @@ export default function AdminOrdersPage() {
     };
 
     const updateStatus = async (orderId: number, newStatus: string) => {
-        if (isAnalyst) return;
+        if (readOnly) return;
         try {
             await api.put(`/orders/${orderId}/status?status=${newStatus}`);
             showNotification(`Order #${orderId} updated to ${newStatus}`, 'success');
@@ -133,6 +136,18 @@ export default function AdminOrdersPage() {
 
     return (
         <div className="p-6 max-w-7xl mx-auto space-y-6 animate-in fade-in duration-500">
+            {isViewer && (
+                <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 flex items-center gap-3 backdrop-blur-sm">
+                    <div className="bg-blue-500 rounded-full p-1">
+                        <Users className="w-4 h-4 text-white" />
+                    </div>
+                    <div className="flex-1">
+                        <p className="text-sm font-medium text-blue-400">Preview Mode</p>
+                        <p className="text-xs text-blue-400/70">You are viewing this system as an exploring member of the community. Order modifications are restricted.</p>
+                    </div>
+                </div>
+            )}
+
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
@@ -189,7 +204,7 @@ export default function AdminOrdersPage() {
                                     <th className="text-left py-4 px-6 text-xs font-black uppercase tracking-wider text-muted-foreground">Date</th>
                                     <th className="text-right py-4 px-6 text-xs font-black uppercase tracking-wider text-muted-foreground">Amount</th>
                                     <th className="text-center py-4 px-6 text-xs font-black uppercase tracking-wider text-muted-foreground">Status</th>
-                                    {!isAnalyst && <th className="text-right py-4 px-6 text-xs font-black uppercase tracking-wider text-muted-foreground">Actions</th>}
+                                    {!readOnly && <th className="text-right py-4 px-6 text-xs font-black uppercase tracking-wider text-muted-foreground">Actions</th>}
                                 </tr>
                             </thead>
                             <tbody className="divide-y">
@@ -239,7 +254,7 @@ export default function AdminOrdersPage() {
                                                     {order.status}
                                                 </Badge>
                                             </td>
-                                            {!isAnalyst && (
+                                            {!readOnly && (
                                                 <td className="py-4 px-6 text-right">
                                                     <select 
                                                         className="bg-background border-2 rounded-lg px-2 py-1.5 text-[11px] font-black focus:ring-4 ring-primary/10 outline-none transition-all cursor-pointer border-input hover:border-primary"

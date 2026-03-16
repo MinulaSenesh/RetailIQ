@@ -1,6 +1,7 @@
 package com.retailiq.api.service;
 
 import com.retailiq.api.dto.ProfileUpdateRequest;
+import com.retailiq.api.dto.UserDto;
 import com.retailiq.api.entity.Customer;
 import com.retailiq.api.entity.User;
 import com.retailiq.api.repository.CustomerRepository;
@@ -20,13 +21,14 @@ public class ProfileService {
     private final CustomerRepository customerRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public User getProfile(String email) {
-        return userRepository.findByEmail(email)
+    public UserDto getProfile(String email) {
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+        return mapToDto(user);
     }
 
     @Transactional
-    public User updateProfile(String currentEmail, ProfileUpdateRequest request) {
+    public UserDto updateProfile(String currentEmail, ProfileUpdateRequest request) {
         User user = userRepository.findByEmail(currentEmail)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -61,7 +63,28 @@ public class ProfileService {
             }
         }
 
-        return user;
+        return mapToDto(user);
+    }
+
+    private UserDto mapToDto(User user) {
+        UserDto.UserDtoBuilder builder = UserDto.builder()
+                .userId(user.getUserId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .role(user.getRole())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .avatarUrl(user.getAvatarUrl());
+
+        if ("CUSTOMER".equals(user.getRole())) {
+            customerRepository.findByUserUserId(user.getUserId()).ifPresent(customer -> {
+                builder.phone(customer.getPhone());
+                builder.address(customer.getAddress());
+                builder.postalCode(customer.getPostalCode());
+            });
+        }
+
+        return builder.build();
     }
 
     @Transactional

@@ -1,6 +1,6 @@
 package com.retailiq.api.controller;
 
-import com.retailiq.api.entity.User;
+import com.retailiq.api.dto.UserDto;
 import com.retailiq.api.exception.ApiResponse;
 import com.retailiq.api.service.ProfileService;
 import lombok.RequiredArgsConstructor;
@@ -25,25 +25,31 @@ public class ProfileController {
 
     private final ProfileService profileService;
 
+    @org.springframework.beans.factory.annotation.Value("${upload.storage.path:uploads}")
+    private String uploadStoragePath;
+
 
     @GetMapping
-    public ResponseEntity<ApiResponse<User>> getProfile(@AuthenticationPrincipal UserDetails userDetails) {
-        User user = profileService.getProfile(userDetails.getUsername());
+    public ResponseEntity<ApiResponse<UserDto>> getProfile(@AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails == null) {
+            return ResponseEntity.status(401).body(ApiResponse.error("UNAUTHORIZED", "User session not found"));
+        }
+        UserDto user = profileService.getProfile(userDetails.getUsername());
         return ResponseEntity.ok(ApiResponse.success(user, "Profile retrieved"));
     }
 
     @PutMapping
-    public ResponseEntity<ApiResponse<User>> updateProfile(
+    public ResponseEntity<ApiResponse<UserDto>> updateProfile(
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestBody com.retailiq.api.dto.ProfileUpdateRequest updated) {
+        if (userDetails == null) {
+            return ResponseEntity.status(401).body(ApiResponse.error("UNAUTHORIZED", "User session not found"));
+        }
         try {
-            if (userDetails == null) {
-                return ResponseEntity.status(401).body(ApiResponse.error("UNAUTHORIZED", "User session not found"));
-            }
-            User user = profileService.updateProfile(userDetails.getUsername(), updated);
+            UserDto user = profileService.updateProfile(userDetails.getUsername(), updated);
             return ResponseEntity.ok(ApiResponse.success(user, "Profile updated"));
         } catch (Exception e) {
-            log.error("Profile update failed for user {}: {}", userDetails.getUsername(), e.getMessage(), e);
+            log.error("Profile update failed: {}", e.getMessage(), e);
             return ResponseEntity.badRequest()
                     .body(ApiResponse.error("BAD_REQUEST", "Profile update failed. Please try again."));
         }
@@ -54,12 +60,16 @@ public class ProfileController {
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestParam("file") MultipartFile file) {
         
+        if (userDetails == null) {
+            return ResponseEntity.status(401).body(ApiResponse.error("UNAUTHORIZED", "User session not found"));
+        }
+        
         try {
             if (file.isEmpty()) {
                 return ResponseEntity.badRequest().body(ApiResponse.error("BAD_REQUEST", "File is empty"));
             }
 
-            Path uploadPath = Paths.get("uploads/profiles").toAbsolutePath();
+            Path uploadPath = Paths.get(uploadStoragePath, "profiles").toAbsolutePath();
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
             }
@@ -76,7 +86,7 @@ public class ProfileController {
 
             return ResponseEntity.ok(ApiResponse.success(avatarUrl, "Photo uploaded successfully"));
         } catch (Exception e) {
-            log.error("Photo upload failed for user {}: {}", userDetails.getUsername(), e.getMessage(), e);
+            log.error("Photo upload failed: {}", e.getMessage(), e);
             return ResponseEntity.internalServerError().body(ApiResponse.error("INTERNAL_ERROR", "Photo upload failed. Please try again."));
         }
     }

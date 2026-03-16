@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { productService } from "@/api/products";
 import { Product } from "@/types";
+import { getAvatarUrl } from "@/lib/formatters";
 
 export default function StorefrontLayout() {
     const { logout, user } = useAuth();
@@ -198,7 +199,7 @@ export default function StorefrontLayout() {
                             className="flex items-center gap-3 cursor-pointer pl-4 border-l border-white/20 hover:text-gray-200 transition-colors py-1 group"
                         >
                             <Avatar className="w-9 h-9 ring-2 ring-white/10 group-hover:ring-[#DC2626] transition-all border-2 border-gray-600">
-                                <AvatarImage src={user?.avatarUrl} alt={user?.firstName} />
+                                <AvatarImage src={getAvatarUrl(user?.avatarUrl)} alt={user?.firstName} />
                                 <AvatarFallback className="text-[10px] bg-[#DC2626] text-white font-bold">
                                     {user?.username?.slice(0, 2).toUpperCase() || "GU"}
                                 </AvatarFallback>

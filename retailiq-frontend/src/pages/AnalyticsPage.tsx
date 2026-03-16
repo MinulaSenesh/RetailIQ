@@ -7,6 +7,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import AreaTrendChart from "@/components/charts/AreaTrendChart";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { formatCurrency, formatNumber, getSegmentChartColor } from "@/lib/formatters";
+import { useAuth } from "@/context/AuthContext";
+import { Users } from "lucide-react";
 import { format } from "date-fns";
 import { DateRange } from "react-day-picker";
 import { DatePickerWithRange } from "@/components/shared/DateRangePicker";
@@ -22,6 +24,8 @@ import { useEffect } from "react";
 import type { ForecastData } from "@/types";
 
 export default function AnalyticsPage() {
+    const { user } = useAuth();
+    const isViewer = user?.role === "VIEWER";
     const [date, setDate] = useState<DateRange | undefined>({
         from: new Date(new Date().setDate(new Date().getDate() - 90)),
         to: new Date()
@@ -50,6 +54,17 @@ export default function AnalyticsPage() {
 
     return (
         <div className="space-y-6">
+            {isViewer && (
+                <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 flex items-center gap-3 backdrop-blur-sm">
+                    <div className="bg-blue-500 rounded-full p-1">
+                        <Users className="w-4 h-4 text-white" />
+                    </div>
+                    <div className="flex-1">
+                        <p className="text-sm font-medium text-blue-400">Preview Mode</p>
+                        <p className="text-xs text-blue-400/70">You are viewing this system as an exploring member of the community. Advanced analytics and predictions are visible but system-wide data updates are restricted.</p>
+                    </div>
+                </div>
+            )}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight">Analytics</h1>

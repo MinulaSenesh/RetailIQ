@@ -2,6 +2,7 @@ package com.retailiq.api.controller;
 
 import com.retailiq.api.dto.OrderCheckoutRequest;
 import com.retailiq.api.repository.UserRepository;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import com.retailiq.api.entity.Order;
@@ -27,6 +28,7 @@ public class OrderController {
         private final UserRepository userRepository;
         private final OrderService orderService;
 
+        @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'ANALYST', 'VIEWER')")
         @GetMapping
         public ResponseEntity<ApiResponse<List<Order>>> getAll(
                         @RequestParam(name = "page", defaultValue = "0") int page,
@@ -68,6 +70,7 @@ public class OrderController {
                 return ResponseEntity.ok(ApiResponse.success(order, "Order retrieved"));
         }
 
+        @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
         @PutMapping("/{id}/status")
         public ResponseEntity<ApiResponse<Order>> updateStatus(
                         @PathVariable("id") Long id,

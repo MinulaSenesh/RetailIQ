@@ -23,10 +23,14 @@ public class DataInitializer implements CommandLineRunner {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    @org.springframework.beans.factory.annotation.Value("${seed.user.password:password}")
+    private String seedPassword;
+
     @Override
     @Transactional
     public void run(String... args) {
         cleanDuplicateUsers("admin@retailiq.com", "Admin User", "ADMIN");
+        cleanDuplicateUsers("community@retailiq.com", "Community Viewer", "VIEWER");
         cleanDuplicateUsers("analyst@retailiq.com", "Analyst User", "ANALYST");
         cleanDuplicateUsers("manager@retailiq.com", "Manager User", "MANAGER");
 
@@ -45,13 +49,19 @@ public class DataInitializer implements CommandLineRunner {
                 userRepository.delete(users.get(i));
             }
         }
+        if (seedPassword == null || seedPassword.isEmpty()) {
+            log.error("SEED_USER_PASSWORD is not set! Using default 'password'");
+            seedPassword = "password";
+        }
 
         userRepository.findByEmail(email).ifPresentOrElse(user -> {
-            user.setPasswordHash(passwordEncoder.encode("password"));
+            log.info("Updating seeded user: {} with role: {}", email, role);
+            user.setPasswordHash(passwordEncoder.encode(seedPassword));
             userRepository.save(user);
         }, () -> {
+            log.info("Creating seeded user: {} with role: {}", email, role);
             userRepository.save(User.builder().email(email).username(username)
-                    .passwordHash(passwordEncoder.encode("password")).role(role).build());
+                    .passwordHash(passwordEncoder.encode(seedPassword)).role(role).build());
         });
     }
 }

@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestClient;
 
@@ -44,6 +45,7 @@ public class AnalyticsController {
                         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Internal server error")
         })
         @GetMapping("/kpis")
+        @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'ANALYST', 'VIEWER')")
         public ResponseEntity<ApiResponse<KpiResponse>> getKpis(
                         @Parameter(description = "Start date (YYYY-MM-DD)") @RequestParam(name = "start_date", defaultValue = "#{T(java.time.LocalDate).now().minusMonths(1).toString()}") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start_date,
                         @Parameter(description = "End date (YYYY-MM-DD)") @RequestParam(name = "end_date", defaultValue = "#{T(java.time.LocalDate).now().toString()}") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end_date) {
@@ -59,6 +61,7 @@ public class AnalyticsController {
                         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Internal server error")
         })
         @GetMapping("/sales/trend")
+        @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'ANALYST', 'VIEWER')")
         public ResponseEntity<ApiResponse<List<SalesTrendDto>>> getSalesTrend(
                         @Parameter(description = "Start date") @RequestParam(name = "start_date", defaultValue = "#{T(java.time.LocalDate).now().minusMonths(3).toString()}") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start_date,
                         @Parameter(description = "End date") @RequestParam(name = "end_date", defaultValue = "#{T(java.time.LocalDate).now().toString()}") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end_date,
@@ -76,6 +79,7 @@ public class AnalyticsController {
                         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Internal server error")
         })
         @GetMapping("/sales/by-region")
+        @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'ANALYST', 'VIEWER')")
         public ResponseEntity<ApiResponse<List<Object>>> getSalesByRegion(
                         @RequestParam(name = "start_date", defaultValue = "#{T(java.time.LocalDate).now().minusMonths(1).toString()}") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start_date,
                         @RequestParam(name = "end_date", defaultValue = "#{T(java.time.LocalDate).now().toString()}") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end_date) {
@@ -90,6 +94,7 @@ public class AnalyticsController {
                         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Internal server error")
         })
         @GetMapping("/customers/segments")
+        @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'ANALYST', 'VIEWER')")
         public ResponseEntity<ApiResponse<List<CustomerSegmentDto>>> getCustomerSegments() {
                 return ResponseEntity
                                 .ok(ApiResponse.success(analyticsService.getCustomerSegments(),
@@ -103,6 +108,7 @@ public class AnalyticsController {
                         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Internal server error")
         })
         @GetMapping("/products/top")
+        @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'ANALYST', 'VIEWER')")
         public ResponseEntity<ApiResponse<List<ProductPerformanceDto>>> getTopProducts(
                         @RequestParam(name = "start_date", defaultValue = "#{T(java.time.LocalDate).now().minusMonths(1).toString()}") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start_date,
                         @RequestParam(name = "end_date", defaultValue = "#{T(java.time.LocalDate).now().toString()}") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end_date,
@@ -120,6 +126,7 @@ public class AnalyticsController {
                         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Internal server error")
         })
         @GetMapping("/inventory/turnover")
+        @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'ANALYST', 'VIEWER')")
         public ResponseEntity<ApiResponse<List<Object>>> getInventoryTurnover() {
                 return ResponseEntity
                                 .ok(ApiResponse.success(analyticsService.getInventoryTurnover(),
@@ -128,6 +135,7 @@ public class AnalyticsController {
 
         @Operation(summary = "Get sales forecast", description = "Returns ML-based sales forecast from Python analytics microservice")
         @GetMapping("/forecast")
+        @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'ANALYST', 'VIEWER')")
         public ResponseEntity<ApiResponse<Object>> getForecast(
                         @RequestParam(name = "days", defaultValue = "30") int days) {
                 try {

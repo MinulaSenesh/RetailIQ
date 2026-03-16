@@ -75,3 +75,12 @@ export function getSegmentChartColor(segment: string): string {
     };
     return map[segment] ?? "#6b7280";
 }
+
+export function getAvatarUrl(url?: string | null): string | undefined {
+    if (!url) return undefined;
+    if (url.startsWith("http")) return url;
+    
+    // Hardcoded production API domain for consistent Railway routing
+    const apiDomain = "https://retailiq-api-production.up.railway.app";
+    return `${apiDomain}${url}`;
+}

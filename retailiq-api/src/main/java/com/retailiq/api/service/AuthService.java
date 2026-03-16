@@ -1,10 +1,10 @@
 package com.retailiq.api.service;
-import lombok.extern.slf4j.Slf4j;
 
 import com.retailiq.api.dto.LoginRequest;
 import com.retailiq.api.dto.LoginResponse;
 import com.retailiq.api.dto.RefreshRequest;
 import com.retailiq.api.dto.RegisterRequest;
+import com.retailiq.api.dto.UserDto;
 import com.retailiq.api.entity.Customer;
 import com.retailiq.api.entity.User;
 import com.retailiq.api.repository.CustomerRepository;
@@ -22,10 +22,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
+
 
         private final AuthenticationManager authenticationManager;
         private final UserRepository userRepository;
@@ -68,7 +68,7 @@ public class AuthService {
                                 .refreshToken(refreshToken)
                                 .tokenType("Bearer")
                                 .expiresIn(86400000L)
-                                .user(LoginResponse.UserDto.builder()
+                                .user(UserDto.builder()
                                                 .userId(user.getUserId())
                                                 .username(user.getUsername())
                                                 .email(user.getEmail())
@@ -84,17 +84,6 @@ public class AuthService {
         }
 
         public LoginResponse login(LoginRequest request) {
-                log.info("Detailed Login Check - Email: [{}]", request.getEmail());
-                
-                userRepository.findByEmail(request.getEmail()).ifPresentOrElse(
-                    u -> {
-                        boolean matches = passwordEncoder.matches(request.getPassword(), u.getPasswordHash());
-                        log.info("User found. Manual password match result: {}", matches);
-                        log.info("Stored hash starts with: {}", u.getPasswordHash().substring(0, Math.min(u.getPasswordHash().length(), 10)));
-                    },
-                    () -> log.warn("User NOT found in database for email: [{}]", request.getEmail())
-                );
-
                 Authentication authentication = authenticationManager.authenticate(
                                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 
@@ -109,17 +98,14 @@ public class AuthService {
                 String accessToken = jwtTokenProvider.generateAccessToken(userDetails);
                 String refreshToken = jwtTokenProvider.generateRefreshToken(userDetails);
 
-                                Customer customer = customerRepository.findAll().stream()
-                                .filter(c -> c.getUser() != null && c.getUser().getUserId().equals(user.getUserId()))
-                                .findFirst().orElse(null);
-
+                Customer customer = customerRepository.findByUserUserId(user.getUserId()).orElse(null);
 
                 return LoginResponse.builder()
                                 .accessToken(accessToken)
                                 .refreshToken(refreshToken)
                                 .tokenType("Bearer")
                                 .expiresIn(86400000L)
-                                .user(LoginResponse.UserDto.builder()
+                                .user(UserDto.builder()
                                                 .userId(user.getUserId())
                                                 .username(user.getUsername())
                                                 .email(user.getEmail())
@@ -155,7 +141,7 @@ public class AuthService {
                                 .refreshToken(newRefreshToken)
                                 .tokenType("Bearer")
                                 .expiresIn(86400000L)
-                                .user(LoginResponse.UserDto.builder()
+                                .user(UserDto.builder()
                                                 .userId(user.getUserId())
                                                 .username(user.getUsername())
                                                 .email(user.getEmail())

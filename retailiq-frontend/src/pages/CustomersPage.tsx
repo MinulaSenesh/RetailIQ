@@ -13,12 +13,15 @@ import { formatDate, getSegmentColor } from "@/lib/formatters";
 import { CustomerFormDialog } from "@/components/customers/CustomerFormDialog";
 import { customerService } from "@/api/customers";
 import { Button } from "@/components/ui/button";
-import { Edit, Trash2, ArrowUpDown } from "lucide-react";
+import { Edit, Trash2, ArrowUpDown, RefreshCw, CheckCircle2, AlertCircle, X } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+
 import { useAuth } from "@/context/AuthContext";
 
 export default function CustomersPage() {
     const { user } = useAuth();
-    const canEdit = user?.role === "ADMIN" || user?.role === "MANAGER";
+    const isViewer = user?.role === "VIEWER";
+    const canEdit = (user?.role === "ADMIN" || user?.role === "MANAGER") && !isViewer;
 
     const [customers, setCustomers] = useState<Customer[]>([]);
     const [loading, setLoading] = useState(true);
@@ -27,6 +30,7 @@ export default function CustomersPage() {
 
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
+    const [notification, setNotification] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
 
     const loadCustomers = () => {
         setLoading(true);
@@ -40,19 +44,25 @@ export default function CustomersPage() {
         loadCustomers();
     }, []);
 
+    const showNotification = (message: string, type: 'success' | 'error') => {
+        setNotification({ message, type });
+        setTimeout(() => setNotification(null), 3000);
+    };
+
     const handleEdit = (customer: Customer) => {
         setEditingCustomer(customer);
         setIsDialogOpen(true);
     };
 
     const handleDelete = async (id: number) => {
-        if (window.confirm("Are you sure you want to delete this customer?")) {
+        if (window.confirm("Are you sure you want to delete this customer? All associated data and their user account will be unlinked/removed. This cannot be undone.")) {
             try {
                 await customerService.delete(id);
+                showNotification("Customer deleted successfully", "success");
                 loadCustomers();
             } catch (err) {
                 console.error("Failed to delete", err);
-                alert("Failed to delete customer. Only Admins/Managers can delete.");
+                showNotification("Failed to delete customer. Only Admins can perform this action.", "error");
             }
         }
     };
@@ -89,17 +99,35 @@ export default function CustomersPage() {
 
     return (
         <div className="space-y-6">
+            {isViewer && (
+                <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 flex items-center gap-3 backdrop-blur-sm">
+                    <div className="bg-blue-500 rounded-full p-1">
+                        <Users className="w-4 h-4 text-white" />
+                    </div>
+                    <div className="flex-1">
+                        <p className="text-sm font-medium text-blue-400">Preview Mode</p>
+                        <p className="text-xs text-blue-400/70">You are viewing customer profiles as a member of the community. Modifying customer data is restricted.</p>
+                    </div>
+                </div>
+            )}
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight">Customers</h1>
                     <p className="text-muted-foreground text-sm mt-1">Customer profiles and RFM segment overview</p>
                 </div>
-                {canEdit && (
-                    <Button onClick={() => { setEditingCustomer(null); setIsDialogOpen(true); }}>
-                        Add Customer
+                <div className="flex items-center gap-2">
+                    <Button onClick={loadCustomers} variant="outline" className="gap-2 font-bold border-2">
+                        <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                        Refresh
                     </Button>
-                )}
+                    {canEdit && (
+                        <Button onClick={() => { setEditingCustomer(null); setIsDialogOpen(true); }}>
+                            Add Customer
+                        </Button>
+                    )}
+                </div>
             </div>
+
 
             {/* Segment summary */}
             <div className="flex flex-wrap gap-2">
@@ -197,6 +225,37 @@ export default function CustomersPage() {
                 onSuccess={loadCustomers}
                 customer={editingCustomer}
             />
+
+            {/* Notification Toast */}
+            <AnimatePresence>
+                {notification && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 50, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 20, scale: 0.95 }}
+                        className="fixed bottom-6 right-6 z-50"
+                    >
+                        <div className={`flex items-center gap-3 p-4 rounded-xl shadow-2xl border backdrop-blur-md ${
+                            notification.type === 'success' 
+                                ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' 
+                                : 'bg-red-500/10 border-red-500/20 text-red-400'
+                        }`}>
+                            {notification.type === 'success' ? (
+                                <CheckCircle2 className="w-5 h-5" />
+                            ) : (
+                                <AlertCircle className="w-5 h-5" />
+                            )}
+                            <p className="text-sm font-medium pr-2">{notification.message}</p>
+                            <button 
+                                onClick={() => setNotification(null)}
+                                className="p-1 hover:bg-white/10 rounded-lg transition-colors"
+                            >
+                                <X className="w-4 h-4 opacity-50" />
+                            </button>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }
