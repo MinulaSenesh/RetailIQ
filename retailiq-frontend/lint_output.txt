@@ -1,0 +1,104 @@
+
+> retailiq-frontend@1.0.0 lint
+> eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0
+
+
+D:\RetailQ\retailiq-frontend\src\App.tsx
+  26:10  warning  'ProtectedRoute' is defined but never used  @typescript-eslint/no-unused-vars
+  50:13  warning  'user' is assigned a value but never used   @typescript-eslint/no-unused-vars
+
+D:\RetailQ\retailiq-frontend\src\components\charts\AreaTrendChart.tsx
+  4:26  warning  'Legend' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\RetailQ\retailiq-frontend\src\components\charts\DonutChart.tsx
+  10:58  warning  'centerLabel' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\RetailQ\retailiq-frontend\src\components\shared\DateRangePicker.tsx
+   2:10  warning  'addDays' is defined but never used        @typescript-eslint/no-unused-vars
+  15:3   warning  'Select' is defined but never used         @typescript-eslint/no-unused-vars
+  16:3   warning  'SelectContent' is defined but never used  @typescript-eslint/no-unused-vars
+  17:3   warning  'SelectItem' is defined but never used     @typescript-eslint/no-unused-vars
+  18:3   warning  'SelectTrigger' is defined but never used  @typescript-eslint/no-unused-vars
+  19:3   warning  'SelectValue' is defined but never used    @typescript-eslint/no-unused-vars
+
+D:\RetailQ\retailiq-frontend\src\components\ui\badge.tsx
+  33:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+D:\RetailQ\retailiq-frontend\src\components\ui\button.tsx
+  67:18  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+D:\RetailQ\retailiq-frontend\src\components\ui\calendar.tsx
+  192:5  error  Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free  @typescript-eslint/ban-ts-comment
+
+D:\RetailQ\retailiq-frontend\src\components\ui\liquid-glass-button.tsx
+  168:18  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+  168:34  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+D:\RetailQ\retailiq-frontend\src\components\ui\login-form.tsx
+  4:22  warning  'ShoppingBag' is defined but never used  @typescript-eslint/no-unused-vars
+  4:57  warning  'Truck' is defined but never used        @typescript-eslint/no-unused-vars
+  4:64  warning  'ShieldCheck' is defined but never used  @typescript-eslint/no-unused-vars
+  4:77  warning  'Star' is defined but never used         @typescript-eslint/no-unused-vars
+
+D:\RetailQ\retailiq-frontend\src\context\AuthContext.tsx
+   18:11  warning  'AuthTokens' is defined but never used                                                                                          @typescript-eslint/no-unused-vars
+   40:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+  130:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+D:\RetailQ\retailiq-frontend\src\context\CartContext.tsx
+  73:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+D:\RetailQ\retailiq-frontend\src\lib\formatters.ts
+  4:15  warning  'Segment' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\RetailQ\retailiq-frontend\src\pages\AdminOrdersPage.tsx
+  10:5   warning  'Truck' is defined but never used                                                                               @typescript-eslint/no-unused-vars
+  11:5   warning  'PackageCheck' is defined but never used                                                                        @typescript-eslint/no-unused-vars
+  18:29  warning  'CardHeader' is defined but never used                                                                          @typescript-eslint/no-unused-vars
+  18:41  warning  'CardTitle' is defined but never used                                                                           @typescript-eslint/no-unused-vars
+  95:8   warning  React Hook useEffect has a missing dependency: 'fetchOrders'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+D:\RetailQ\retailiq-frontend\src\pages\CheckoutPage.tsx
+   4:10  warning  'formatCurrency' is defined but never used          @typescript-eslint/no-unused-vars
+   6:10  warning  'Card' is defined but never used                    @typescript-eslint/no-unused-vars
+   6:16  warning  'CardContent' is defined but never used             @typescript-eslint/no-unused-vars
+   6:29  warning  'CardFooter' is defined but never used              @typescript-eslint/no-unused-vars
+   6:41  warning  'CardHeader' is defined but never used              @typescript-eslint/no-unused-vars
+   6:53  warning  'CardTitle' is defined but never used               @typescript-eslint/no-unused-vars
+  53:11  warning  'launchPayHere' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+D:\RetailQ\retailiq-frontend\src\pages\DashboardPage.tsx
+  10:10  warning  'Badge' is defined but never used         @typescript-eslint/no-unused-vars
+  16:26  warning  'formatNumber' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\RetailQ\retailiq-frontend\src\pages\OrdersPage.tsx
+  3:43  warning  'ChevronRight' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\RetailQ\retailiq-frontend\src\pages\ProductsPage.tsx
+  16:10  warning  'MoreHorizontal' is defined but never used  @typescript-eslint/no-unused-vars
+  16:53  warning  'Loader2' is defined but never used         @typescript-eslint/no-unused-vars
+
+D:\RetailQ\retailiq-frontend\src\pages\ProfilePage.tsx
+   6:29  warning  'CardDescription' is defined but never used       @typescript-eslint/no-unused-vars
+   6:69  warning  'CardFooter' is defined but never used            @typescript-eslint/no-unused-vars
+   7:10  warning  'Input' is defined but never used                 @typescript-eslint/no-unused-vars
+  13:46  warning  'MapPin' is defined but never used                @typescript-eslint/no-unused-vars
+  13:54  warning  'Mail' is defined but never used                  @typescript-eslint/no-unused-vars
+  14:10  warning  'formatCurrency' is defined but never used        @typescript-eslint/no-unused-vars
+  14:26  warning  'formatNumber' is defined but never used          @typescript-eslint/no-unused-vars
+  14:40  warning  'getSegmentChartColor' is defined but never used  @typescript-eslint/no-unused-vars
+  15:10  warning  'format' is defined but never used                @typescript-eslint/no-unused-vars
+
+D:\RetailQ\retailiq-frontend\src\pages\RegisterPage.tsx
+  8:10  warning  'Alert' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\RetailQ\retailiq-frontend\src\pages\StorefrontPage.tsx
+  10:10  warning  'Badge' is defined but never used             @typescript-eslint/no-unused-vars
+  12:10  warning  'formatCurrency' is defined but never used    @typescript-eslint/no-unused-vars
+  13:38  warning  'Zap' is defined but never used               @typescript-eslint/no-unused-vars
+  14:10  warning  'Input' is defined but never used             @typescript-eslint/no-unused-vars
+  15:10  warning  'ShaderDemo' is defined but never used        @typescript-eslint/no-unused-vars
+  31:12  warning  'addedId' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+Γ£û 57 problems (1 error, 56 warnings)
+

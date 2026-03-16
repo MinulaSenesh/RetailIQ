@@ -189,7 +189,7 @@ const CalendarDayButton = React.forwardRef<
   }, [modifiers.focused])
 
   const mergedRef = (node: HTMLButtonElement) => {
-    // @ts-ignore
+    // @ts-expect-error: ref.current assignment needs casting for node
     ref.current = node;
     if (typeof forwardedRef === 'function') {
       forwardedRef(node);
