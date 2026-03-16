@@ -24,13 +24,37 @@ import NotFoundPage from "@/pages/NotFoundPage";
 
 /** Redirects unauthenticated users to /login */
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, isLoading } = useAuth();
+    
+    if (isLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gray-950">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin" />
+                    <p className="text-gray-400 font-medium animate-pulse">Restoring session...</p>
+                </div>
+            </div>
+        );
+    }
+    
     return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
 }
 
 /** Only allows ADMIN / MANAGER / ANALYST — kicks CUSTOMER to /shop */
 function AdminRoute({ children }: { children: React.ReactNode }) {
-    const { isAuthenticated, user } = useAuth();
+    const { isAuthenticated, user, isLoading } = useAuth();
+    
+    if (isLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gray-950">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin" />
+                    <p className="text-gray-400 font-medium animate-pulse">Checking permissions...</p>
+                </div>
+            </div>
+        );
+    }
+    
     if (!isAuthenticated) return <Navigate to="/login" replace />;
     if (user?.role === "CUSTOMER") return <Navigate to="/shop" replace />;
     return <>{children}</>;
@@ -38,7 +62,19 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
 
 /** Only allows CUSTOMER — kicks admins to /dashboard */
 function CustomerRoute({ children }: { children: React.ReactNode }) {
-    const { isAuthenticated, user } = useAuth();
+    const { isAuthenticated, user, isLoading } = useAuth();
+    
+    if (isLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gray-950">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin" />
+                    <p className="text-gray-400 font-medium animate-pulse">Restoring your shop...</p>
+                </div>
+            </div>
+        );
+    }
+    
     if (!isAuthenticated) return <Navigate to="/login" replace />;
     if (user?.role !== "CUSTOMER") return <Navigate to="/dashboard" replace />;
     return <>{children}</>;

@@ -42,16 +42,25 @@ export function getAccessToken() { return _accessToken; }
 // Use relative URL so Vite proxy handles routing to :8080 — avoids CORS
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "/api/v1";
 
+const STORAGE_KEY_TOKEN = "retailiq_refresh_token";
+const STORAGE_KEY_USER = "retailiq_user";
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-    const [user, setUser] = useState<User | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
+    const [user, setUser] = useState<User | null>(() => {
+        const saved = localStorage.getItem(STORAGE_KEY_USER);
+        return saved ? JSON.parse(saved) : null;
+    });
+    const [isLoading, setIsLoading] = useState(true); // Start as true to check session
     const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const isInitializedRef = useRef(false);
 
 
 
     const logout = useCallback(() => {
         _accessToken = null;
         _refreshToken = null;
+        localStorage.removeItem(STORAGE_KEY_TOKEN);
+        localStorage.removeItem(STORAGE_KEY_USER);
         setUser(null);
         if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current);
     }, []);
@@ -60,31 +69,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current);
         const refreshIn = Math.max(0, expiresIn - 60_000); // 1 min before expiry
         refreshTimerRef.current = setTimeout(async () => {
-            if (!_refreshToken) return;
+            const token = _refreshToken;
+            if (!token) return;
             try {
-                const { data } = await axios.post(`${API_BASE}/auth/refresh`, { refreshToken: _refreshToken });
+                const { data } = await axios.post(`${API_BASE}/auth/refresh`, { refreshToken: token });
                 _accessToken = data.data.accessToken;
                 _refreshToken = data.data.refreshToken;
+                localStorage.setItem(STORAGE_KEY_TOKEN, _refreshToken!);
                 scheduleRefresh(data.data.expiresIn);
             } catch {
                 logout();
             }
         }, refreshIn);
     }, [logout]);
-
-    const login = useCallback(async (email: string, password: string) => {
-        setIsLoading(true);
-        try {
-            const { data } = await axios.post(`${API_BASE}/auth/login`, { email, password });
-            const { accessToken, refreshToken, expiresIn, user: userData } = data.data;
-            _accessToken = accessToken;
-            _refreshToken = refreshToken;
-            setUser(userData);
-            scheduleRefresh(expiresIn);
-        } finally {
-            setIsLoading(false);
-        }
-    }, [scheduleRefresh]);
 
     const registerCustomer = useCallback(async (firstName: string, lastName: string, email: string, password: string) => {
         setIsLoading(true);
@@ -93,6 +90,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const { accessToken, refreshToken, expiresIn, user: userData } = data.data;
             _accessToken = accessToken;
             _refreshToken = refreshToken;
+            localStorage.setItem(STORAGE_KEY_TOKEN, refreshToken);
+            localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(userData));
+            setUser(userData);
+            scheduleRefresh(expiresIn);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [scheduleRefresh]);
+
+    const login = useCallback(async (email: string, password: string) => {
+        setIsLoading(true);
+        try {
+            const { data } = await axios.post(`${API_BASE}/auth/login`, { email, password });
+            const { accessToken, refreshToken, expiresIn, user: userData } = data.data;
+            _accessToken = accessToken;
+            _refreshToken = refreshToken;
+            localStorage.setItem(STORAGE_KEY_TOKEN, refreshToken);
+            localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(userData));
             setUser(userData);
             scheduleRefresh(expiresIn);
         } finally {
@@ -111,6 +126,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         return () => axios.interceptors.request.eject(interceptor);
     }, []);
+
+    // Initial check for existing session
+    useEffect(() => {
+        if (isInitializedRef.current) return;
+        isInitializedRef.current = true;
+
+        const initAuth = async () => {
+            const savedRefreshToken = localStorage.getItem(STORAGE_KEY_TOKEN);
+            if (savedRefreshToken) {
+                _refreshToken = savedRefreshToken;
+                try {
+                    const { data } = await axios.post(`${API_BASE}/auth/refresh`, { refreshToken: savedRefreshToken });
+                    _accessToken = data.data.accessToken;
+                    _refreshToken = data.data.refreshToken;
+                    localStorage.setItem(STORAGE_KEY_TOKEN, _refreshToken!);
+                    // Re-fetch profile to ensure user data is fresh
+                    const profileRes = await axios.get(`${API_BASE}/profile`, {
+                        headers: { Authorization: `Bearer ${_accessToken}` }
+                    });
+                    const userData = profileRes.data.data;
+                    localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(userData));
+                    setUser(userData);
+                    scheduleRefresh(data.data.expiresIn);
+                } catch (e) {
+                    console.error("Auth hydration failed", e);
+                    logout();
+                }
+            }
+            setIsLoading(false);
+        };
+
+        initAuth();
+    }, [scheduleRefresh, logout]);
 
     useEffect(() => {
         return () => { if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current); };
