@@ -90,4 +90,19 @@ public class ProfileController {
             return ResponseEntity.internalServerError().body(ApiResponse.error("INTERNAL_ERROR", "Photo upload failed. Please try again."));
         }
     }
+
+    @DeleteMapping
+    public ResponseEntity<ApiResponse<Void>> deleteProfile(@AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails == null) {
+            return ResponseEntity.status(401).body(ApiResponse.error("UNAUTHORIZED", "User session not found"));
+        }
+        try {
+            profileService.deleteProfile(userDetails.getUsername());
+            return ResponseEntity.ok(ApiResponse.success(null, "Account deleted successfully"));
+        } catch (Exception e) {
+            log.error("Account deletion failed: {}", e.getMessage(), e);
+            return ResponseEntity.internalServerError()
+                    .body(ApiResponse.error("INTERNAL_ERROR", "Account deletion failed. Please try again."));
+        }
+    }
 }

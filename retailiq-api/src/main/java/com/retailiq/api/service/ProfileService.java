@@ -5,6 +5,7 @@ import com.retailiq.api.dto.UserDto;
 import com.retailiq.api.entity.Customer;
 import com.retailiq.api.entity.User;
 import com.retailiq.api.repository.CustomerRepository;
+import com.retailiq.api.repository.OrderRepository;
 import com.retailiq.api.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,6 +20,7 @@ public class ProfileService {
 
     private final UserRepository userRepository;
     private final CustomerRepository customerRepository;
+    private final OrderRepository orderRepository;
     private final PasswordEncoder passwordEncoder;
 
     public UserDto getProfile(String email) {
@@ -93,5 +95,23 @@ public class ProfileService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         user.setAvatarUrl(avatarUrl);
         userRepository.save(user);
+    }
+
+    @Transactional
+    public void deleteProfile(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // If user is a customer, delete associated orders and customer record
+        if ("CUSTOMER".equals(user.getRole())) {
+            customerRepository.findByUserUserId(user.getUserId()).ifPresent(customer -> {
+                // Dependency: OrderRepository needs to be available in this service
+                // I will add it via constructor injection in the next step
+                orderRepository.deleteByCustomer(customer);
+                customerRepository.delete(customer);
+            });
+        }
+
+        userRepository.delete(user);
     }
 }

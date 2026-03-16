@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import axios from "axios";
-import { User, Camera, Loader2, Save, Phone, MapPin, Mail, Shield, Monitor, Users } from "lucide-react";
+import { User, Camera, Loader2, Save, Phone, MapPin, Mail, Shield, Monitor, Users, Trash2, AlertTriangle } from "lucide-react";
 import { formatCurrency, formatNumber, getSegmentChartColor, getAvatarUrl } from "@/lib/formatters";
 import { format } from "date-fns";
 
@@ -31,13 +32,17 @@ type ProfileForm = z.infer<typeof profileSchema>;
 
 export default function ProfilePage() {
     const { user, updateUser } = useAuth();
+    const navigate = useNavigate();
     const isViewer = user?.role === "VIEWER";
     const [isUploading, setIsUploading] = useState(false);
     const [serverError, setServerError] = useState("");
     const [successMsg, setSuccessMsg] = useState("");
     const [twoFAEnabled, setTwoFAEnabled] = useState(false);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
     const isAdmin = user?.role !== "CUSTOMER" && user?.role !== "VIEWER";
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const { logout } = useAuth();
 
     const API_BASE = import.meta.env.VITE_API_BASE_URL || "/api/v1";
 
@@ -104,6 +109,21 @@ export default function ProfilePage() {
             setServerError("Upload failed. Please try a smaller image.");
         } finally {
             setIsUploading(false);
+        }
+    };
+
+    const handleDeleteAccount = async () => {
+        setIsDeleting(true);
+        setServerError("");
+        try {
+            await axios.delete(`${API_BASE}/profile`);
+            logout();
+            navigate("/");
+        } catch (error: any) {
+            setServerError(error?.response?.data?.message || "Failed to delete account. Please try again.");
+            setShowDeleteConfirm(false);
+        } finally {
+            setIsDeleting(false);
         }
     };
 
@@ -337,6 +357,56 @@ export default function ProfilePage() {
                     </Button>
                 </div>
             </form>
+
+            {!isAdmin && !isViewer && (
+                <div className="pt-10 border-t border-gray-200 dark:border-gray-800">
+                    <Card className="border-red-200 dark:border-red-900/30 bg-red-50/30 dark:bg-red-900/10 overflow-hidden transition-all duration-300">
+                        <CardHeader className="border-b border-red-100 dark:border-red-900/20 pb-4">
+                            <div className="flex items-center gap-2">
+                                <AlertTriangle className="w-5 h-5 text-red-600" />
+                                <CardTitle className="text-red-700 dark:text-red-400 font-bold text-sm uppercase tracking-widest">Danger Zone</CardTitle>
+                            </div>
+                        </CardHeader>
+                        <CardContent className="pt-6">
+                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                <div>
+                                    <h4 className="font-bold text-gray-900 dark:text-white">Delete Account</h4>
+                                    <p className="text-sm text-gray-500 mt-1">Permanently remove your account and all associated data. This action is irreversible.</p>
+                                </div>
+                                {!showDeleteConfirm ? (
+                                    <Button 
+                                        type="button"
+                                        variant="outline" 
+                                        className="border-red-200 hover:bg-red-600 hover:text-white text-red-600 font-bold transition-all px-6 rounded-xl"
+                                        onClick={() => setShowDeleteConfirm(true)}
+                                    >
+                                        <Trash2 className="w-4 h-4 mr-2" />
+                                        Delete My Account
+                                    </Button>
+                                ) : (
+                                    <div className="flex items-center gap-3 animate-in fade-in zoom-in duration-300">
+                                        <Button 
+                                            variant="ghost" 
+                                            className="text-gray-500 font-bold px-4 hover:bg-gray-200/50"
+                                            onClick={() => setShowDeleteConfirm(false)}
+                                            disabled={isDeleting}
+                                        >
+                                            Cancel
+                                        </Button>
+                                        <Button 
+                                            className="bg-red-600 hover:bg-red-700 text-white font-bold px-6 rounded-xl shadow-lg shadow-red-900/20"
+                                            onClick={handleDeleteAccount}
+                                            disabled={isDeleting}
+                                        >
+                                            {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : "YES, DELETE PERMANENTLY"}
+                                        </Button>
+                                    </div>
+                                )}
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+            )}
             </div>
         </div>
     );

@@ -16,6 +16,8 @@ import org.springframework.data.domain.Pageable;
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
+    void deleteByCustomer(com.retailiq.api.entity.Customer customer);
+
     @Override
     @EntityGraph(attributePaths = {"customer"})
     Page<Order> findAll(Pageable pageable);
