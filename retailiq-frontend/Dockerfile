@@ -2,11 +2,11 @@
 FROM node:20-alpine AS build
 ARG VITE_API_BASE_URL=https://retailiq-api-production.up.railway.app/api/v1
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
-# CACHEBUST forces a fresh build on every deploy (prevents stale layer caching)
-ARG CACHEBUST=1
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
+# Force cache invalidation: fetches unique timestamp so Docker can never cache past this point
+ADD "https://worldtimeapi.org/api/timezone/Etc/UTC" /tmp/bustcache
 COPY . .
 RUN rm -f .env .env.local .env.production .env.development
 RUN VITE_API_BASE_URL=https://retailiq-api-production.up.railway.app/api/v1 npm run build
