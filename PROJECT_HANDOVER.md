@@ -15,8 +15,6 @@ Welcome to your new enterprise ecosystem. This document provides everything you 
 
 | Role | Email / Username | Password |
 | :--- | :--- | :--- |
-| **Super Admin** | `admin@retailiq.com` | `password` |
-| **Manager** | `manager@retailiq.com` | `password` |
 | **Analyst** (Read-Only) | `analyst@retailiq.com` | `password` |
 | **Customer (Test)** | `customer.test@zyvora.com` | `Password123!` |
 
