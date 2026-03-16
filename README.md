@@ -81,7 +81,7 @@ Ensure the following variables are set in your production environment (e.g., Rai
 The dashboard includes a "Preview Mode" for community members to explore the analytics and features without risk to production data.
 
 *   **Email**: `community@retailiq.com`
-*   **Password**: [Contact administrator or use default if local]
+*   **Password**: `password`
 *   **Permissions**: Read-only access to most modules. Uploads and deletions are disabled.
 
 ---
