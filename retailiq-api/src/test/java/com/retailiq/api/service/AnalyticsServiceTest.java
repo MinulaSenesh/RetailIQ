@@ -52,7 +52,7 @@ class AnalyticsServiceTest {
         when(orderRepository.countOrdersBetween(
                 eq(start.atStartOfDay()), eq(end.atTime(23, 59, 59))))
                 .thenReturn(150L);
-        when(customerRepository.countActiveCustomers()).thenReturn(500L);
+        when(customerRepository.countActiveCustomersAt(any())).thenReturn(500L);
 
         // Previous period (30 days prior)
         LocalDateTime prevStart = start.atStartOfDay().minusDays(30);

@@ -4,6 +4,7 @@ import com.retailiq.api.entity.Order;
 import com.retailiq.api.exception.ApiResponse;
 import com.retailiq.api.exception.ResourceNotFoundException;
 import com.retailiq.api.repository.OrderRepository;
+import com.retailiq.api.repository.UserRepository;
 import com.retailiq.api.security.JwtTokenProvider;
 import com.retailiq.api.service.OrderService;
 import org.junit.jupiter.api.Test;
@@ -44,6 +45,9 @@ class OrderControllerTest {
 
     @MockBean
     private UserDetailsService userDetailsService;
+
+    @MockBean
+    private UserRepository userRepository;
 
     @Test
     @WithMockUser(username = "admin@retailiq.com", roles = {"ADMIN"})
