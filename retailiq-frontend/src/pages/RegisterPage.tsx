@@ -26,6 +26,7 @@ export default function RegisterPage() {
     const navigate = useNavigate();
     const [serverError, setServerError]   = useState("");
     const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     const { register, handleSubmit, formState: { errors, isSubmitting } } =
         useForm<RegisterForm>({ resolver: zodResolver(schema) });
@@ -137,7 +138,7 @@ export default function RegisterPage() {
                         <div className="relative z-0">
                             <input
                                 id="confirmPassword"
-                                type={showPassword ? "text" : "password"}
+                                type={showConfirmPassword ? "text" : "password"}
                                 placeholder=" "
                                 autoComplete="new-password"
                                 {...register("confirmPassword")}
@@ -146,8 +147,8 @@ export default function RegisterPage() {
                             <label htmlFor="confirmPassword" className="absolute text-sm text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:text-[#DC2626] peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 uppercase tracking-widest font-bold">
                                 Confirm Password
                             </label>
-                            <button type="button" tabIndex={-1} onClick={() => setShowPassword(v => !v)} className="absolute right-0 top-3 text-gray-400 hover:text-white">
-                                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                            <button type="button" tabIndex={-1} onClick={() => setShowConfirmPassword(v => !v)} className="absolute right-0 top-3 text-gray-400 hover:text-white">
+                                {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                             </button>
                             {errors.confirmPassword && <p className="text-xs text-red-400 mt-1">{errors.confirmPassword.message}</p>}
                         </div>
