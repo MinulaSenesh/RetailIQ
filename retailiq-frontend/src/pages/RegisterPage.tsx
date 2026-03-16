@@ -129,7 +129,7 @@ export default function RegisterPage() {
                                 Password
                             </label>
                             <button type="button" tabIndex={-1} onClick={() => setShowPassword(v => !v)} className="absolute right-0 top-3 text-gray-400 hover:text-white">
-                                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                                {showPassword ? <Eye size={16} /> : <EyeOff size={16} />}
                             </button>
                             {errors.password && <p className="text-xs text-red-400 mt-1">{errors.password.message}</p>}
                         </div>
@@ -148,7 +148,7 @@ export default function RegisterPage() {
                                 Confirm Password
                             </label>
                             <button type="button" tabIndex={-1} onClick={() => setShowConfirmPassword(v => !v)} className="absolute right-0 top-3 text-gray-400 hover:text-white">
-                                {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                                {showConfirmPassword ? <Eye size={16} /> : <EyeOff size={16} />}
                             </button>
                             {errors.confirmPassword && <p className="text-xs text-red-400 mt-1">{errors.confirmPassword.message}</p>}
                         </div>

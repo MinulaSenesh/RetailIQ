@@ -79,7 +79,7 @@ export function LoginForm({ onSubmit, error, isSubmitting }: LoginFormProps) {
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-red-400 cursor-pointer transition-colors"
             >
-              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              {showPassword ? <Eye size={16} /> : <EyeOff size={16} />}
             </button>
           </div>
           <span className="text-gray-500 hover:text-red-400 text-xs text-right block mt-1.5 transition-colors cursor-pointer">
