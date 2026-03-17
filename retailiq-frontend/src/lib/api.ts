@@ -3,9 +3,8 @@ import axios from "axios";
 import { getAccessToken } from "@/context/AuthContext";
 
 const api = axios.create({
-    // Use Vite proxy — avoids CORS. In production, set VITE_API_BASE_URL=/api/v1 or absolute URL.
-    // Hardcoded production URL for Railway deployment to ensure consistency
-    baseURL: "https://retailiq-api-production.up.railway.app/api/v1",
+    // Use Vite proxy in development, absolute URL in production
+    baseURL: import.meta.env.VITE_API_BASE_URL || "/api/v1",
     headers: {
         "Content-Type": "application/json",
     },
